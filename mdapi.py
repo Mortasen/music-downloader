@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import audiojack
 from threading import Thread
 
-
+os = audiojack.os
 urllib = audiojack.urllib
 youtube_dl = audiojack.youtube_dl
 
