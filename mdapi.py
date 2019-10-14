@@ -42,19 +42,28 @@ class MusicDownloaderAPI:
             img_url = self._get_thumbnail_url(video['id'])
             img = self._get_image(img_url)
             video['image'] = img
-            res.append(video)
-        return res
 
     def set_param (self, name, value):
         ydl.params[name] = value
 
-    def get_search_results (self, query, download=False, download_first=True, limit=3):
+    def search (self, query, download=False, download_first=True, limit=3):
+        self.webpage_dwnd_thr = Thread(target=self._find_videos, args=(query,))
+        self.webpage_dwnd_thr.start()
+
+    def _find_videos (self, query, download_first):
         query = query.replace(' ', '+')
         url = 'http://youtube.com/results?search_query=' + query
-        info = ydl.extract_info(url, download=download, limit=limit)
-        self.download(info['entries'][0]['webpage_url'])
-        res = self._add_images(info['entries'])
-        return res
+        results = ydl.extract_info(url, download=download, limit=limit)
+        self._add_images(results['entries'])
+        self.last_results = results
+        if download_first:
+            self.download(results['entries'][0]['webpage_url'])
+
+    def is_downloading_webpage (self):
+        return self.webpage_dwnd_thr.isAlive()
+
+    def get_search_results (self):
+        return self.last_results
 
     def get_lyrics (self, song_title, song_artist):
         artist = song_artist.lower()
@@ -79,14 +88,11 @@ class MusicDownloaderAPI:
     def download (self, video_urls):
         if not isinstance(video_urls, list):
             video_urls = [video_urls]
-        if not self.download_thread.isAlive():
-            self.download_thread = Thread(target=ydl.download, args=(video_urls,))
-            self.download_thread.start()
-        else:
-            raise Exception ("mdapi has already been downloading video.")
+        self.video_dwnd_thr = Thread(target=ydl.download, args=(video_urls,))
+        self.video_dwnd_thr.start()
 
-    def is_downloading (self):
-        return self.download_thread.isAlive()
+    def is_downloading_video (self):
+        return self.video_dwnd_thr.isAlive()
         
         
         
