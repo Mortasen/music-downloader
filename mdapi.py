@@ -79,7 +79,14 @@ class MusicDownloaderAPI:
     def download (self, video_urls):
         if not isinstance(video_urls, list):
             video_urls = [video_urls]
-        thr = Thread(target=ydl.download, args=(video_urls,))
-        thr.start()
+        if not self.download_thread.isAlive():
+            self.download_thread = Thread(target=ydl.download, args=(video_urls,))
+            self.download_thread.start()
+        else:
+            raise Exception ("mdapi has already been downloading video.")
+
+    def is_downloading (self):
+        return self.download_thread.isAlive()
+        
         
         
