@@ -1,0 +1,16 @@
+
+
+
+settings:
+bitrate
+limit
+predownload
+temp directory
+Remember last options
+directory default
+filename default
+database default
+parallel threads
+theme
+layout
+language
