@@ -47,10 +47,11 @@ class MusicDownloaderAPI:
         ydl.params[name] = value
 
     def search (self, query, download=False, download_first=True, limit=3):
-        self.webpage_dwnd_thr = Thread(target=self._find_videos, args=(query,))
+        self.webpage_dwnd_thr = Thread(target=self._find_videos,
+                                       args=(query, download, download_first, limit))
         self.webpage_dwnd_thr.start()
 
-    def _find_videos (self, query, download_first):
+    def _find_videos (self, query, download, download_first, limit):
         query = query.replace(' ', '+')
         url = 'http://youtube.com/results?search_query=' + query
         results = ydl.extract_info(url, download=download, limit=limit)
@@ -60,6 +61,8 @@ class MusicDownloaderAPI:
             self.download(results['entries'][0]['webpage_url'])
 
     def is_downloading_webpage (self):
+        print('calling is_downloading_webpage')
+        print('result:', self.webpage_dwnd_thr.isAlive())
         return self.webpage_dwnd_thr.isAlive()
 
     def get_search_results (self):

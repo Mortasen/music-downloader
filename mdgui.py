@@ -5,13 +5,18 @@ from tkinter import ttk
 import io
 from PIL import Image, ImageTk
 import shutil
+from time import sleep
 
 from utils import format_number, date_dict, format_date, format_time
 
 os = mdapi.os
 
 
+# TODO: Fix button next (raise an exception, doesn't becaming disable)
+# TODO: Add debug message if predownloaded video should be removed
+# TODO: Don't remove predownloaded video if it has already downloaded
 
+# TODO: Add showing tags from video and other services (musicbrainz)
 
 
 class MusicDownloader:
@@ -226,7 +231,7 @@ class MusicDownloader:
         ...
 
     def previous (self, *args):
-        if not self.current_video == 0:
+        if not self.current_video <= 0:
             self.current_video -= 1
             self._show_current_video()
         if self.current_video == 0:
@@ -236,7 +241,7 @@ class MusicDownloader:
         
 
     def next (self, *args):
-        if not self.current_video == len(self.last_results)-1:
+        if not self.current_video >= len(self.last_results)-1:
             self.current_video += 1
             self._show_current_video()
         if self.current_video == len(self.last_results)-1:
@@ -401,7 +406,7 @@ class MusicDownloader:
 
 
     def _wait_for_downloading_video (self):
-        if self.api.is_downloading_webpage():
+        if self.api.is_downloading_video():
             self.progress_bar.configure(mode='indeterminate')
             while self.api.is_downloading_video():
                 self.progress_bar.step(5)
