@@ -5,13 +5,18 @@ from tkinter import ttk
 import io
 from PIL import Image, ImageTk
 import shutil
+from time import sleep
 
 from utils import format_number, date_dict, format_date, format_time
 
 os = mdapi.os
 
 
+# TODO: Fix button next (raise an exception, doesn't becaming disable)
+# TODO: Add debug message if predownloaded video should be removed
+# TODO: Don't remove predownloaded video if it has already downloaded
 
+# TODO: Add showing tags from video and other services (musicbrainz)
 
 
 class MusicDownloader:
@@ -202,10 +207,13 @@ class MusicDownloader:
         
 
     def search (self, *args):
-        self.progress_bar.configure(mode='indeterminate')
+        self.progress_bar.configure(mode='indeterminate', value=50)
         
         query = self.entry_query.get()
-        results = self.api.get_search_results(query)
+        self.api.search(query)
+        self._wait_for_downloading_webpage()
+        
+        results = self.api.get_search_results()
         self.last_results = results
         self.current_video = 0
         self.button_previous.configure(state='disabled')
@@ -223,7 +231,7 @@ class MusicDownloader:
         ...
 
     def previous (self, *args):
-        if not self.current_video == 0:
+        if not self.current_video <= 0:
             self.current_video -= 1
             self._show_current_video()
         if self.current_video == 0:
@@ -233,7 +241,7 @@ class MusicDownloader:
         
 
     def next (self, *args):
-        if not self.current_video == len(self.last_results)-1:
+        if not self.current_video >= len(self.last_results)-1:
             self.current_video += 1
             self._show_current_video()
         if self.current_video == len(self.last_results)-1:
@@ -243,8 +251,14 @@ class MusicDownloader:
         
 
     def download (self, *args):
-        video = self.last_results[self.current_video]
         temp_dir = self.settings['temp_dir']
+        if self.current_video != 0:
+            video_url = self.last_results['entries'][self.current_video]['webpage_url']
+            self.api.download(video_url)
+            first_video_id = self.last_results['entries'][self.current_video]['id']
+            os.remove(f"{temp_dir}\\{first_video_id}.mp3")
+        self._wait_for_downloading_video()
+        video = self.last_results['entries'][self.current_video]
         video_id = video['id']
         pathfrom = f"{temp_dir}\\{video_id}.mp3"
         dload_dir = self.settings['path']
@@ -376,9 +390,29 @@ class MusicDownloader:
 
 
     def _show_current_video (self):
-        video = self.last_results[self.current_video]
+        video = self.last_results['entries'][self.current_video]
 
         self._set_preview(**self._format_video_info(video))
+
+
+    def _wait_for_downloading_webpage (self):
+        if self.api.is_downloading_webpage():
+            self.progress_bar.configure(mode='indeterminate')
+            while self.api.is_downloading_webpage():
+                self.progress_bar.step(5)
+                self.progress_bar.update_idletasks()
+                sleep(0.1)
+            self.progress_bar.configure(mode='determinate')
+
+
+    def _wait_for_downloading_video (self):
+        if self.api.is_downloading_video():
+            self.progress_bar.configure(mode='indeterminate')
+            while self.api.is_downloading_video():
+                self.progress_bar.step(5)
+                self.progress_bar.update_idletasks()
+                sleep(0.1)
+            self.progress_bar.configure(mode='determinate')
 
 
 
