@@ -226,6 +226,9 @@ class MusicDownloader:
 
         self._show_current_video()
 
+        self.downloaded_videos.append(0)
+        # or not append if not predownload
+
         # turn state of button and progressbar when video downloaded
         # and download track to player
         self.button_download.configure(state='normal')
@@ -239,7 +242,7 @@ class MusicDownloader:
         if not self.current_video <= 0:
             self.current_video -= 1
             self._show_current_video()
-            self.button_play.configure(text='P', command=self.playsong)
+            self.button_play.configure(text='P', command=self.play_song)
         if self.current_video == 0:
             self.button_previous.configure(state='disabled')
         if self.current_video < len(self.last_results['entries'])-1:
@@ -250,8 +253,7 @@ class MusicDownloader:
         if not self.current_video >= len(self.last_results['entries'])-1:
             self.current_video += 1
             self._show_current_video()
-        if self.current_video == len(self.last_results['entries'])-1:
-            self.button_play.configure(text='P', command=self.playsong)
+            self.button_play.configure(text='P', command=self.play_song)
         if self.current_video == len(self.last_results['entries'])-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
@@ -285,23 +287,28 @@ class MusicDownloader:
     def to_queue (self):
         ...
 
-    def play_song ():
-        if not self.current_video in self.downloaded_video:
+    def play_song (self):
+        print('playsound called')
+        if self.api.is_downloading_video():
+            print('waiting for downloading video')
+            self._wait_for_downloading_video()
+        print(f'checking for video {self.current_video} in downloaded:')
+        if not self.current_video in self.downloaded_videos:
+            print('video is not present: downloading')
             self._download_current_video()
-            self._wait_for_downloading()
-            self.downloaded_video.append(self.current_video)
-        song_id = self.last_results['entries'][self.current_video]
+            self._wait_for_downloading_video()
+        song_id = self.last_results['entries'][self.current_video]['id']
         filename = rf'F:\{song_id}.mp3'
         self.song = mp3play.load(filename)
         self.song.play()
 
         self.button_play.configure(text='||', command=self.pause_song)
 
-    def pause_song ():
+    def pause_song (self):
         self.song.pause()
         self.button_play.configure(text='//', command=self.unpause_song)
 
-    def unpause_song ():
+    def unpause_song (self):
         self.song.unpause()
         self.button_play.configure(text='||', command=self.pause_song)
 
@@ -440,11 +447,16 @@ class MusicDownloader:
                 self.progress_bar.step(5)
                 self.progress_bar.update_idletasks()
                 sleep(0.1)
+            #sleep(5) # something going wrong if not sleep
+            # may be because ffmpeg converting not _is_downloading
             self.progress_bar.configure(mode='determinate')
 
-    def _donwload_current_video (self):
+    def _download_current_video (self):
         video_url = self.last_results['entries'][self.current_video]['webpage_url']
         self.api.download(video_url)
+        self.downloaded_videos.append(self.current_video)
+        print(f'video {self.current_video} was added to downloaded')
+        print(self.downloaded_videos)
 
 
 
