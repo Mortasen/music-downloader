@@ -241,10 +241,10 @@ class MusicDownloader:
         
 
     def next (self, *args):
-        if not self.current_video >= len(self.last_results)-1:
+        if not self.current_video >= len(self.last_results['entries'])-1:
             self.current_video += 1
             self._show_current_video()
-        if self.current_video == len(self.last_results)-1:
+        if self.current_video == len(self.last_results['entries'])-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
             self.button_previous.configure(state='normal')
