@@ -6,6 +6,7 @@ import io
 from PIL import Image, ImageTk
 import shutil
 from time import sleep
+import mp3play
 
 from utils import format_number, date_dict, format_date, format_time
 
@@ -18,6 +19,7 @@ os = mdapi.os
 
 # TODO: Add showing tags from video and other services (musicbrainz)
 
+# ISSUE: Parallelism and player
 
 class MusicDownloader:
 
@@ -126,6 +128,8 @@ class MusicDownloader:
 
         self.api = api
 
+        self.downloaded_videos = []
+
 
 
     def configure (self):
@@ -211,6 +215,7 @@ class MusicDownloader:
         
         query = self.entry_query.get()
         self.api.search(query)
+        self.downloaded_videos = []
         self._wait_for_downloading_webpage()
         
         results = self.api.get_search_results()
@@ -234,6 +239,7 @@ class MusicDownloader:
         if not self.current_video <= 0:
             self.current_video -= 1
             self._show_current_video()
+            self.button_play.configure(text='P', command=self.playsong)
         if self.current_video == 0:
             self.button_previous.configure(state='disabled')
         if self.current_video < len(self.last_results)-1:
@@ -244,6 +250,7 @@ class MusicDownloader:
         if not self.current_video >= len(self.last_results)-1:
             self.current_video += 1
             self._show_current_video()
+            self.button_play.configure(text='P', command=self.playsong)
         if self.current_video == len(self.last_results)-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
@@ -251,8 +258,11 @@ class MusicDownloader:
         
 
     def download (self, *args):
+        #
+        # CHANGE ALL!
+        #
         temp_dir = self.settings['temp_dir']
-        if self.current_video != 0:
+        if not self.current_video in self.downloaded_videos:
             video_url = self.last_results['entries'][self.current_video]['webpage_url']
             self.api.download(video_url)
             first_video_id = self.last_results['entries'][self.current_video]['id']
@@ -275,7 +285,24 @@ class MusicDownloader:
         ...
 
     def play_song ():
-        ...
+        if not self.current_video in self.downloaded_video:
+            self._download_current_video()
+            self._wait_for_downloading()
+            self.downloaded_video.append(self.current_video)
+        song_id = self.last_results['entries'][self.current_video]
+        filename = rf'F:\{song_id}.mp3'
+        self.song = mp3play.load(filename)
+        self.song.play()
+
+        self.button_play.configure(text='||', command=self.pause_song)
+
+    def pause_song ():
+        self.song.pause()
+        self.button_play.configure(text='//', command=self.unpause_song)
+
+    def unpause_song ():
+        self.song.unpause()
+        self.button_play.configure(text='||', command=self.pause_song)
 
     def expand (self, *args):
         app_2 = self.layout['app_2']
@@ -413,6 +440,10 @@ class MusicDownloader:
                 self.progress_bar.update_idletasks()
                 sleep(0.1)
             self.progress_bar.configure(mode='determinate')
+
+    def _donwload_current_video (self):
+        video_url = self.last_results['entries'][self.current_video]['webpage_url']
+        self.api.download(video_url)
 
 
 
