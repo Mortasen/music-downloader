@@ -18,6 +18,7 @@ os = mdapi.os
 # TODO: Don't remove predownloaded video if it has already downloaded
 
 # TODO: Add showing tags from video and other services (musicbrainz)
+# TODO: Fix players and progress bars (.after())
 
 # ISSUE: Parallelism and player
 
@@ -150,6 +151,8 @@ class MusicDownloader:
         if 'resizable_y' in app_measure:
             self.app.resizable(y=app_measure['resizable_y'])
 
+        self.app.protocol('WM_DELETE_WINDOW', self.exit)
+
         root = self.app
 
         self.label_query = tk.Label(root, **self.appearence['label_query'])
@@ -212,6 +215,7 @@ class MusicDownloader:
 
     def search (self, *args):
         self.progress_bar.configure(mode='indeterminate', value=50)
+        self._clear_cache()
         
         query = self.entry_query.get()
         self.api.search(query)
@@ -261,25 +265,24 @@ class MusicDownloader:
         
 
     def download (self, *args):
-        #
-        # CHANGE ALL!
-        #
         temp_dir = self.settings['temp_dir']
+        if self.api.is_downloading_video():
+            self._wait_for_downloading_video()
         if not self.current_video in self.downloaded_videos:
-            video_url = self.last_results['entries'][self.current_video]['webpage_url']
-            self.api.download(video_url)
-            first_video_id = self.last_results['entries'][self.current_video]['id']
-            os.remove(f"{temp_dir}\\{first_video_id}.mp3")
+            self._download_current_video()
+            self._wait_for_downloading_video()
         self._wait_for_downloading_video()
+        
         video = self.last_results['entries'][self.current_video]
         video_id = video['id']
-        pathfrom = f"{temp_dir}\\{video_id}.mp3"
+        pathfrom = rf"{temp_dir}\{video_id}.mp3"
+        # or may be not .mp3?
         dload_dir = self.settings['path']
         if 'track' in video and 'artist' in video:
             filename = self.settings['filename'].format(**video)
         else:
             filename = video['title']
-        pathto = f"{dload_dir}\\{filename}"
+        pathto = rf"{dload_dir}\{filename}"
         self.button_download.configure(state='disabled')
         shutil.move(pathfrom, pathto)
         
@@ -288,17 +291,15 @@ class MusicDownloader:
         ...
 
     def play_song (self):
-        print('playsound called')
+        temp_dir = self.settings['temp_dir']
         if self.api.is_downloading_video():
-            print('waiting for downloading video')
             self._wait_for_downloading_video()
-        print(f'checking for video {self.current_video} in downloaded:')
         if not self.current_video in self.downloaded_videos:
-            print('video is not present: downloading')
             self._download_current_video()
             self._wait_for_downloading_video()
         song_id = self.last_results['entries'][self.current_video]['id']
-        filename = rf'F:\{song_id}.mp3'
+        filename = rf'{temp_dir}\{song_id}.mp3'
+        # or may be not .mp3?
         self.song = mp3play.load(filename)
         self.song.play()
 
@@ -376,6 +377,11 @@ class MusicDownloader:
         self.entry_tag_mark.place(**self.layout['entry_tag_mark'])
 
         self.app.mainloop()
+
+
+    def exit (self, *args):
+        self._clear_cache()
+        self.app.destroy()
 
 
         
@@ -457,6 +463,16 @@ class MusicDownloader:
         self.downloaded_videos.append(self.current_video)
         print(f'video {self.current_video} was added to downloaded')
         print(self.downloaded_videos)
+
+    def _clear_cache (self):
+        temp_dir = self.settings['temp_dir']
+        for video_num in self.downloaded_videos:
+            video_id = self.last_results['entries'][video_num]['id']
+            filepath = rf'{temp_dir}\{video_id}.mp3'
+            # or may be not .mp3?
+            print(filepath, 'will be removed!')
+            input()
+            os.remove(filepath)
 
 
 
