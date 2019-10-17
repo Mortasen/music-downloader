@@ -294,6 +294,7 @@ class MusicDownloader:
         else:
             filename = video['title']
         pathto = rf"{dload_dir}\{filename}"
+        self.accepted_videos.append(self.current_video)
         self.button_download.configure(state='disabled')
         shutil.move(pathfrom, pathto)
         
