@@ -130,6 +130,7 @@ class MusicDownloader:
         self.api = api
 
         self.downloaded_videos = []
+        self.accepted_videos = []
 
 
 
@@ -220,6 +221,7 @@ class MusicDownloader:
         query = self.entry_query.get()
         self.api.search(query)
         self.downloaded_videos = []
+        self.accepted_videos = []
         self._wait_for_downloading_webpage()
         
         results = self.api.get_search_results()
@@ -247,6 +249,10 @@ class MusicDownloader:
             self.current_video -= 1
             self._show_current_video()
             self.button_play.configure(text='P', command=self.play_song)
+            if self.current_video in self.accepted_videos:
+                self.button_download.configure(state='disable')
+            else:
+                self.button_download.configure(state='normal')
         if self.current_video == 0:
             self.button_previous.configure(state='disabled')
         if self.current_video < len(self.last_results['entries'])-1:
@@ -258,6 +264,10 @@ class MusicDownloader:
             self.current_video += 1
             self._show_current_video()
             self.button_play.configure(text='P', command=self.play_song)
+            if self.current_video in self.accepted_videos:
+                self.button_download.configure(state='disable')
+            else:
+                self.button_download.configure(state='normal')
         if self.current_video == len(self.last_results['entries'])-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
@@ -265,6 +275,7 @@ class MusicDownloader:
         
 
     def download (self, *args):
+        # it doesn't mean download, name of function by the text of button
         temp_dir = self.settings['temp_dir']
         if self.api.is_downloading_video():
             self._wait_for_downloading_video()
