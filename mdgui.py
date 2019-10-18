@@ -12,6 +12,11 @@ from utils import format_number, date_dict, format_date, format_time
 
 os = mdapi.os
 
+# TODO: Find out why does _find_tags don't set text of entry
+# TODO: Replace all to _get_current_video_info()
+# TODO: Add printing lyrics after play
+# TODO: Add global MusicDownloader variable containt tags of videos
+
 
 # TODO: Fix button next (raise an exception, doesn't becaming disable)
 # TODO: Add debug message if predownloaded video should be removed
@@ -324,6 +329,8 @@ class MusicDownloader:
 
         self.button_play.configure(text='||', command=self.pause_song)
 
+        self.api.get_lyrics(vid)
+
     def pause_song (self):
         self.song.pause()
         self.button_play.configure(text='//', command=self.unpause_song)
@@ -431,6 +438,16 @@ class MusicDownloader:
                 'likes': likes,
                 'date': date,
                 'duration': duration}
+
+
+    def _get_current_video_info (self):
+        return self.last_results['entries'][self.current_video]
+
+    #
+    #
+    #   REPLACE ALL TO THIS METHOD CALL!
+    #
+    #
     
 
 
@@ -462,10 +479,12 @@ class MusicDownloader:
             self.tags_found_videos.append(self.current_video)
             
         tags = self.api.get_tags(video_info)
-        self.entry_title.configure(text=tags['title'])
-        self.entry_artist.configure(text=tags['artist'])
-        self.entry_from.configure(text=tags['album'])
-        self.entry_year.configure(text=tags['year'])
+        print('\n= TAGS GOT! =\n')
+        print(tags)
+        self.entry_tag_title.configure(text=tags['title'])
+        self.entry_tag_artist.configure(text=tags['artist'])
+        self.entry_tag_from.configure(text=tags['album'])
+        self.entry_tag_year.configure(text=tags['year'])
         
 
 
@@ -504,7 +523,6 @@ class MusicDownloader:
             filepath = rf'{temp_dir}\{video_id}.mp3'
             # or may be not .mp3?
             print(filepath, 'will be removed!')
-            input()
             os.remove(filepath)
 
 
