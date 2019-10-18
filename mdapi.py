@@ -18,7 +18,7 @@ ydl_opts = {
 
 
 
-adj = AudioJack()
+adj = audiojack.AudioJack()
 ydl = youtube_dl.YoutubeDL(params=ydl_opts)
 
 class MusicDownloaderAPI:
@@ -74,7 +74,7 @@ class MusicDownloaderAPI:
     def get_tags (self, video_info):
         tags = adj._get_metadata(adj._parse(video_info))[0]
         if 'track' in video_info:
-            tags['track'] = video_info['track']
+            tags['title'] = video_info['track']
         if 'artist' in video_info:
             tags['artist'] = video_info['artist']
         if 'album' in video_info:

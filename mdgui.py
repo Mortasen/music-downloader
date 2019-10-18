@@ -131,6 +131,7 @@ class MusicDownloader:
 
         self.downloaded_videos = []
         self.accepted_videos = []
+        self.tags_found_videos = []
 
 
 
@@ -158,6 +159,7 @@ class MusicDownloader:
 
         self.label_query = tk.Label(root, **self.appearence['label_query'])
         self.entry_query = tk.EntryWithPlaceholder(root, **self.appearence['entry_query'])
+        self.entry_query.bind('<Return>', self.search)
         self.button_search = tk.Button(root, **self.appearence['button_search'])
         self.button_search.configure(command=self.search)
         self.label_image = tk.Label(root, **self.appearence['label_image'])
@@ -210,8 +212,6 @@ class MusicDownloader:
         self.label_tag_mark = tk.Label(root, **self.appearence['label_tag_mark'])
         self.entry_tag_mark = tk.Entry(root, **self.appearence['entry_tag_mark'])
 
-        self.entry_query.bind('<Return>', self.search)
-
         
 
     def search (self, *args):
@@ -239,6 +239,9 @@ class MusicDownloader:
         # and download track to player
         self.button_download.configure(state='normal')
 
+        if self.expanded:
+            self._find_tags()
+
 
 
     def get_results (self, query):
@@ -253,6 +256,8 @@ class MusicDownloader:
                 self.button_download.configure(state='disable')
             else:
                 self.button_download.configure(state='normal')
+            if self.expanded and not self.current_video in self.tags_found_videos:
+                self._find_tags()
         if self.current_video == 0:
             self.button_previous.configure(state='disabled')
         if self.current_video < len(self.last_results['entries'])-1:
@@ -268,6 +273,8 @@ class MusicDownloader:
                 self.button_download.configure(state='disable')
             else:
                 self.button_download.configure(state='normal')
+            if self.expanded and not self.current_video in self.tags_found_videos:
+                self._find_tags()
         if self.current_video == len(self.last_results['entries'])-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
@@ -275,7 +282,7 @@ class MusicDownloader:
         
 
     def download (self, *args):
-        # it doesn't mean download, name of function by the text of button
+        # it doesn't mean download, just name of function by the text of button
         temp_dir = self.settings['temp_dir']
         if self.api.is_downloading_video():
             self._wait_for_downloading_video()
@@ -330,6 +337,7 @@ class MusicDownloader:
         self._set_geometry(app_2['width'], app_2['height'])
         self.button_expand.configure(text=self.appearence['button_expand_2']['text'],
                                      command=self.reduce)
+        self._find_tags()
         
 
     def reduce (self, *args):
@@ -446,6 +454,19 @@ class MusicDownloader:
         video = self.last_results['entries'][self.current_video]
 
         self._set_preview(**self._format_video_info(video))
+
+
+    def _find_tags (self, video_info=None):
+        if video_info is None:
+            video_info = self.last_results['entries'][self.current_video]
+            self.tags_found_videos.append(self.current_video)
+            
+        tags = self.api.get_tags(video_info)
+        self.entry_title.configure(text=tags['title'])
+        self.entry_artist.configure(text=tags['artist'])
+        self.entry_from.configure(text=tags['album'])
+        self.entry_year.configure(text=tags['year'])
+        
 
 
     def _wait_for_downloading_webpage (self):
