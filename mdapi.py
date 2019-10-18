@@ -17,6 +17,8 @@ ydl_opts = {
     }
 
 
+
+adj = AudioJack()
 ydl = youtube_dl.YoutubeDL(params=ydl_opts)
 
 class MusicDownloaderAPI:
@@ -43,14 +45,6 @@ class MusicDownloaderAPI:
             img = self._get_image(img_url)
             video['image'] = img
 
-    def set_param (self, name, value):
-        ydl.params[name] = value
-
-    def search (self, query, download=False, download_first=True, limit=3):
-        self.webpage_dwnd_thr = Thread(target=self._find_videos,
-                                       args=(query, download, download_first, limit))
-        self.webpage_dwnd_thr.start()
-
     def _find_videos (self, query, download, download_first, limit):
         query = query.replace(' ', '+')
         url = 'http://youtube.com/results?search_query=' + query
@@ -59,6 +53,15 @@ class MusicDownloaderAPI:
         self.last_results = results
         if download_first:
             self.download(results['entries'][0]['webpage_url'])
+            
+
+    def set_param (self, name, value):
+        ydl.params[name] = value
+
+    def search (self, query, download=False, download_first=True, limit=3):
+        self.webpage_dwnd_thr = Thread(target=self._find_videos,
+                                       args=(query, download, download_first, limit))
+        self.webpage_dwnd_thr.start()
 
     def is_downloading_webpage (self):
         print('calling is_downloading_webpage')
@@ -67,6 +70,18 @@ class MusicDownloaderAPI:
 
     def get_search_results (self):
         return self.last_results
+
+    def get_tags (self, video_info):
+        tags = adj._get_metadata(adj._parse(video_info))[0]
+        if 'track' in video_info:
+            tags['track'] = video_info['track']
+        if 'artist' in video_info:
+            tags['artist'] = video_info['artist']
+        if 'album' in video_info:
+            tags['album'] = video_info['album']
+        if 'release_year' in video_info:
+            tags['year'] = video_info['release_year']
+        return tags
 
     def get_lyrics (self, song_title, song_artist):
         artist = song_artist.lower()
