@@ -13,7 +13,6 @@ from utils import format_number, date_dict, format_date, format_time
 os = mdapi.os
 
 # TODO: Find out why does _find_tags don't set text of entry
-# TODO: Replace all to _get_current_video_info()
 # TODO: Add printing lyrics after play
 # TODO: Add global MusicDownloader variable containt tags of videos
 
@@ -296,7 +295,7 @@ class MusicDownloader:
             self._wait_for_downloading_video()
         self._wait_for_downloading_video()
         
-        video = self.last_results['entries'][self.current_video]
+        video = self._get_current_video_info()
         video_id = video['id']
         pathfrom = rf"{temp_dir}\{video_id}.mp3"
         # or may be not .mp3?
@@ -321,7 +320,7 @@ class MusicDownloader:
         if not self.current_video in self.downloaded_videos:
             self._download_current_video()
             self._wait_for_downloading_video()
-        song_id = self.last_results['entries'][self.current_video]['id']
+        song_id = self._get_current_video_info()['id']
         filename = rf'{temp_dir}\{song_id}.mp3'
         # or may be not .mp3?
         self.song = mp3play.load(filename)
@@ -468,14 +467,14 @@ class MusicDownloader:
 
 
     def _show_current_video (self):
-        video = self.last_results['entries'][self.current_video]
+        video = self._get_current_video_info()
 
         self._set_preview(**self._format_video_info(video))
 
 
     def _find_tags (self, video_info=None):
         if video_info is None:
-            video_info = self.last_results['entries'][self.current_video]
+            video_info = self._get_current_video_info()
             self.tags_found_videos.append(self.current_video)
             
         tags = self.api.get_tags(video_info)
@@ -510,7 +509,7 @@ class MusicDownloader:
             self.progress_bar.configure(mode='determinate')
 
     def _download_current_video (self):
-        video_url = self.last_results['entries'][self.current_video]['webpage_url']
+        video_url = self._get_current_video_info()['webpage_url']
         self.api.download(video_url)
         self.downloaded_videos.append(self.current_video)
         print(f'video {self.current_video} was added to downloaded')
