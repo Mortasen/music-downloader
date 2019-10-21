@@ -499,7 +499,7 @@ class MusicDownloader:
         #self.entry_tag_from.configure(text=tags['album'])
         self.entry_tag_from.insert(0, tags['album'])
         #self.entry_tag_year.configure(text=tags['year'])
-        self.entry_tag_year.insert(0, tags['year'])
+        self.entry_tag_year.insert(0, str(tags['year']))
         
 
 
