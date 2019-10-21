@@ -320,7 +320,8 @@ class MusicDownloader:
         if not self.current_video in self.downloaded_videos:
             self._download_current_video()
             self._wait_for_downloading_video()
-        song_id = self._get_current_video_info()['id']
+        song_info = self._get_current_video_info()
+        song_id = song_info['id']
         filename = rf'{temp_dir}\{song_id}.mp3'
         # or may be not .mp3?
         self.song = mp3play.load(filename)
@@ -328,7 +329,7 @@ class MusicDownloader:
 
         self.button_play.configure(text='||', command=self.pause_song)
 
-        self.api.get_lyrics(vid)
+        lyrics = self.api.get_lyrics(song_info)
 
     def pause_song (self):
         self.song.pause()
