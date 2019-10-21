@@ -329,7 +329,18 @@ class MusicDownloader:
 
         self.button_play.configure(text='||', command=self.pause_song)
 
-        lyrics = self.api.get_lyrics(song_info)
+        # <CHANGE ALL CHANGE ALL>
+        #
+        
+        track = song_info['track'] if 'track' in song_info else None
+        artist = song_info['artist'] if 'artist' in song_info else None
+
+        if track and artist:
+            lyrics = self.api.get_lyrics(track, artist)
+            print(lyrics)
+
+        #
+        # </CHANGE ALL CHANGE ALL>
 
     def pause_song (self):
         self.song.pause()
@@ -481,10 +492,14 @@ class MusicDownloader:
         tags = self.api.get_tags(video_info)
         print('\n= TAGS GOT! =\n')
         print(tags)
-        self.entry_tag_title.configure(text=tags['title'])
-        self.entry_tag_artist.configure(text=tags['artist'])
-        self.entry_tag_from.configure(text=tags['album'])
-        self.entry_tag_year.configure(text=tags['year'])
+        #self.entry_tag_title.configure(text=tags['title'])
+        self.entry_tag_title.insert(0, tags['title'])
+        #self.entry_tag_artist.configure(text=tags['artist'])
+        self.entry_tag_artist.insert(0, tags['artist'])
+        #self.entry_tag_from.configure(text=tags['album'])
+        self.entry_tag_from.insert(0, tags['album'])
+        #self.entry_tag_year.configure(text=tags['year'])
+        self.entry_tag_year.insert(0, tags['year'])
         
 
 
