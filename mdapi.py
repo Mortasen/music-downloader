@@ -92,7 +92,16 @@ class MusicDownloaderAPI:
         url = "http://azlyrics.com/lyrics/"+artist+"/"+title+".html"
         print(url)
 
-        content = urllib.request.urlopen(url).read()
+        try:
+            content = urllib.request.urlopen(url).read()
+        except Exception:
+            print("An error occured.")
+            u = input()
+            if u:
+                content = urllib.request.urlopen(u).read()
+            else:
+                return "/NO LYRICS/"
+            
         soup = BeautifulSoup(content, 'html.parser')
         lyrics = str(soup)
         # lyrics lies between up_partition and down_partition

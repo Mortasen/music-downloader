@@ -493,13 +493,17 @@ class MusicDownloader:
         print('\n= TAGS GOT! =\n')
         print(tags)
         #self.entry_tag_title.configure(text=tags['title'])
-        self.entry_tag_title.insert(0, tags['title'])
+        if 'title' in tags:
+            self.entry_tag_title.insert(0, tags['title'])
         #self.entry_tag_artist.configure(text=tags['artist'])
-        self.entry_tag_artist.insert(0, tags['artist'])
+        if 'artist' in tags:
+            self.entry_tag_artist.insert(0, tags['artist'])
         #self.entry_tag_from.configure(text=tags['album'])
-        self.entry_tag_from.insert(0, tags['album'])
+        if 'album' in tags:
+            self.entry_tag_from.insert(0, tags['album'])
         #self.entry_tag_year.configure(text=tags['year'])
-        self.entry_tag_year.insert(0, str(tags['year']))
+        if 'year' in tags:
+            self.entry_tag_year.insert(0, str(tags['year']))
         
 
 
