@@ -17,14 +17,17 @@ os = mdapi.os
 # TODO: Add global MusicDownloader variable containt tags of videos
 
 
-# TODO: Fix button next (raise an exception, doesn't becaming disable)
 # TODO: Add debug message if predownloaded video should be removed
 # TODO: Don't remove predownloaded video if it has already downloaded
 
-# TODO: Add showing tags from video and other services (musicbrainz)
 # TODO: Fix players and progress bars (.after())
 
+# ISSUE: Error when searching new while downloading old: raise
+# Exception in downloading thread
+
 # ISSUE: Parallelism and player
+
+# MAYBE: last.fm api implement 
 
 class MusicDownloader:
 
@@ -337,6 +340,7 @@ class MusicDownloader:
 
         if track and artist:
             lyrics = self.api.get_lyrics(track, artist)
+            print(' = LYRICS = ')
             print(lyrics)
 
         #
@@ -489,20 +493,25 @@ class MusicDownloader:
             video_info = self._get_current_video_info()
             self.tags_found_videos.append(self.current_video)
             
-        tags = self.api.get_tags(video_info)
-        print('\n= TAGS GOT! =\n')
-        print(tags)
+        self.tags = self.api.get_tags(video_info)
+        if tags:
+            print('\n= TAGS GOT! =\n')
+            print(self.tags)
+            self._set_tags(self.tags)
+
+
+    def _set_tags (self, tags):
         #self.entry_tag_title.configure(text=tags['title'])
-        if 'title' in tags:
+        if 'title' in tags and tags['title']:
             self.entry_tag_title.insert(0, tags['title'])
         #self.entry_tag_artist.configure(text=tags['artist'])
-        if 'artist' in tags:
+        if 'artist' in tags and tags['artist']:
             self.entry_tag_artist.insert(0, tags['artist'])
         #self.entry_tag_from.configure(text=tags['album'])
-        if 'album' in tags:
+        if 'album' in tags and tags['album']:
             self.entry_tag_from.insert(0, tags['album'])
         #self.entry_tag_year.configure(text=tags['year'])
-        if 'year' in tags:
+        if 'year' in tags and tags['year']:
             self.entry_tag_year.insert(0, str(tags['year']))
         
 
