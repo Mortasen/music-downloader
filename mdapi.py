@@ -77,8 +77,12 @@ class MusicDownloaderAPI:
         except:
             print("An exception occured while loading tags.")
             return None
-        tags['year'] = tags['date'][:4]
+        
+        if 'date' in tags and tags['date'] is not None:
+            tags['year'] = tags['date'][:4]
+            
         print("tags['year'] = tags['date'][:4]", tags['year'])
+        
         if 'track' in video_info:
             tags['title'] = video_info['track']
         if 'artist' in video_info:

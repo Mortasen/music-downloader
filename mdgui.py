@@ -12,8 +12,7 @@ from utils import format_number, date_dict, format_date, format_time
 
 os = mdapi.os
 
-# TODO: Find out why does _find_tags don't set text of entry
-# TODO: Add printing lyrics after play
+
 # TODO: Add global MusicDownloader variable containt tags of videos
 
 
@@ -227,12 +226,16 @@ class MusicDownloader:
         
         query = self.entry_query.get()
         self.api.search(query)
+        
         self.downloaded_videos = []
         self.accepted_videos = []
+        self.tags_found_videos = []
+        
         self._wait_for_downloading_webpage()
         
         results = self.api.get_search_results()
         self.last_results = results
+        self.tags = [{} for i in range(3)]
         self.current_video = 0
         self.button_previous.configure(state='disabled')
         self.button_next.configure(state='normal')
@@ -247,7 +250,8 @@ class MusicDownloader:
         self.button_download.configure(state='normal')
 
         if self.expanded:
-            self._find_tags()
+            self._set_tags()
+            self._configure_tags_entries()
 
 
 
@@ -359,7 +363,9 @@ class MusicDownloader:
         self._set_geometry(app_2['width'], app_2['height'])
         self.button_expand.configure(text=self.appearence['button_expand_2']['text'],
                                      command=self.reduce)
-        self._find_tags()
+        self._set_tags()
+        self._configure_tags_entries()
+        self.expanded = True
         
 
     def reduce (self, *args):
@@ -367,6 +373,7 @@ class MusicDownloader:
         self._set_geometry(app_1['width'], app_1['height'])
         self.button_expand.configure(text=self.appearence['button_expand']['text'],
                                      command=self.expand)
+        self.expanded = False
 
         
 
@@ -458,11 +465,9 @@ class MusicDownloader:
     def _get_current_video_info (self):
         return self.last_results['entries'][self.current_video]
 
-    #
-    #
-    #   REPLACE ALL TO THIS METHOD CALL!
-    #
-    #
+
+    def _get_current_video_tags (self):
+        return self.tags[self.current_video]
     
 
 
@@ -488,7 +493,7 @@ class MusicDownloader:
         self._set_preview(**self._format_video_info(video))
 
 
-    def _find_tags (self, video_info=None):
+    '''def _find_tags (self, video_info=None):
         if video_info is None:
             video_info = self._get_current_video_info()
             self.tags_found_videos.append(self.current_video)
@@ -497,11 +502,14 @@ class MusicDownloader:
         if tags:
             print('\n= TAGS GOT! =\n')
             print(self.tags)
+            if overwrite or not 'title' in vinfo or not vinfo['title']:
+                video_info['title']
             self._set_tags(self.tags)
 
 
-    def _set_tags (self, tags):
+    def _set_tags (self, tags, overwrite=False):
         #self.entry_tag_title.configure(text=tags['title'])
+        vinfo = self.get_current_video_info()
         if 'title' in tags and tags['title']:
             self.entry_tag_title.insert(0, tags['title'])
         #self.entry_tag_artist.configure(text=tags['artist'])
@@ -512,7 +520,56 @@ class MusicDownloader:
             self.entry_tag_from.insert(0, tags['album'])
         #self.entry_tag_year.configure(text=tags['year'])
         if 'year' in tags and tags['year']:
+            self.entry_tag_year.insert(0, str(tags['year']))'''
+
+
+    def _find_tags (self, videoinfo=None):
+        if videoinfo is None:
+            if self.current_video in self.tags_found_videos:
+                return self._get_current_video_tags()
+            
+            videoinfo = self._get_current_video_info()
+            self.tags_found_videos.append(self.current_video)
+            
+        tags = self.api.get_tags(videoinfo)
+        
+        print('\n= TAGS GOT! =\n')
+        print(tags)
+        return tags
+
+    def _set_tags (self, tags=None, overwrite=False):
+        if tags is None:
+            tags = self._find_tags()
+
+        current_tags = self._get_current_video_tags()
+            
+        if 'title' in tags:
+            if overwrite or not 'title' in current_tags or not current_tags['title']:
+                current_tags['title'] = tags['title']
+        if 'artist' in tags:
+            if overwrite or not 'artist' in current_tags or not current_tags['artist']:
+                current_tags['artist'] = tags['artist']
+        if 'album' in tags:
+            if overwrite or not 'album' in current_tags or not current_tags['album']:
+                current_tags['album'] = tags['album']
+        if 'year' in tags:
+            if overwrite or not 'year' in current_tags or not current_ags['year']:
+                current_tags['year'] = tags['year']
+                
+
+    def _configure_tags_entries (self, tags=None):
+        if tags is None:
+            tags = self._find_tags()
+
+        if 'title' in tags and tags['title']:
+            self.entry_tag_title.insert(0, tags['title'])
+        if 'artist' in tags and tags['artist']:
+            self.entry_tag_artist.insert(0, tags['artist'])
+        if 'album' in tags and tags['album']:
+            self.entry_tag_from.insert(0, tags['album'])
+        if 'year' in tags and tags['year']:
             self.entry_tag_year.insert(0, str(tags['year']))
+        
         
 
 
