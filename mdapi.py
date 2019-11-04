@@ -76,20 +76,22 @@ class MusicDownloaderAPI:
             tags = adj._get_metadata(adj._parse(video_info))[0]
         except:
             print("An exception occured while loading tags.")
-            return None
+            tags = {}
+
+        print()
         
-        if 'date' in tags and tags['date'] is not None:
+        if 'date' in tags and tags['date']:
+            print(tags)
             tags['year'] = tags['date'][:4]
-            
-        print("tags['year'] = tags['date'][:4]", tags['year'])
+            print("tags['year'] = tags['date'][:4]", tags['year'])
         
-        if 'track' in video_info:
+        if 'track' in video_info and video_info['track']:
             tags['title'] = video_info['track']
-        if 'artist' in video_info:
+        if 'artist' in video_info and video_info['artist']:
             tags['artist'] = video_info['artist']
-        if 'album' in video_info:
+        if 'album' in video_info and video_info['album']:
             tags['album'] = video_info['album']
-        if 'release_year' in video_info:
+        if 'release_year' in video_info and video_info['release_year']:
             tags['year'] = video_info['release_year']
         return tags
 

@@ -14,17 +14,18 @@ os = mdapi.os
 
 
 # TODO: Add global MusicDownloader variable containt tags of videos
-
+# TODO: Fix errors if get_tags return None
 
 # TODO: Add debug message if predownloaded video should be removed
 # TODO: Don't remove predownloaded video if it has already downloaded
 
 # TODO: Fix players and progress bars (.after())
+# TODO: Add main cycle
 
 # ISSUE: Error when searching new while downloading old: raise
 # Exception in downloading thread
 
-# ISSUE: Parallelism and player
+# [F?] ISSUE: Parallelism and player
 
 # MAYBE: last.fm api implement 
 
@@ -248,6 +249,7 @@ class MusicDownloader:
         # turn state of button and progressbar when video downloaded
         # and download track to player
         self.button_download.configure(state='normal')
+        self.button_play.configure(text='►', command=self.play_song)
 
         if self.expanded:
             self._set_tags()
@@ -262,7 +264,7 @@ class MusicDownloader:
         if not self.current_video <= 0:
             self.current_video -= 1
             self._show_current_video()
-            self.button_play.configure(text='P', command=self.play_song)
+            self.button_play.configure(text='►', command=self.play_song)
             if self.current_video in self.accepted_videos:
                 self.button_download.configure(state='disable')
             else:
@@ -279,7 +281,7 @@ class MusicDownloader:
         if not self.current_video >= len(self.last_results['entries'])-1:
             self.current_video += 1
             self._show_current_video()
-            self.button_play.configure(text='P', command=self.play_song)
+            self.button_play.configure(text='►', command=self.play_song)
             if self.current_video in self.accepted_videos:
                 self.button_download.configure(state='disable')
             else:
@@ -552,8 +554,15 @@ class MusicDownloader:
         if 'album' in tags:
             if overwrite or not 'album' in current_tags or not current_tags['album']:
                 current_tags['album'] = tags['album']
+        print('o o o YEAR o o o')
+        print('TAGS TAGS TAGS: ', tags)
+        print('CURRENT TAGS CURRENT TAGS:', current_tags)
+        print('year' in tags)
+        print('year' in current_tags)
+        print('overwrite', overwrite)
+        if 'year' in current_tags: print(current_tags['year'])
         if 'year' in tags:
-            if overwrite or not 'year' in current_tags or not current_ags['year']:
+            if overwrite or not 'year' in current_tags or not current_tags['year']:
                 current_tags['year'] = tags['year']
                 
 

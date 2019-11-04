@@ -1,13 +1,13 @@
-# MusicDownloaderApp v0.6.0.0 by Namerif
+# MusicDownloaderApp v0.6.7.1 by Namerif
 
 import mdgui
 import mdapi
 
 import json
 
+#ISSUE: Searching second song, button play still pause
 
-
-VERSION = '0.6.0.0'
+VERSION = '0.6.7.1'
 
 settings_ex = {
     'bitrate': 256,
