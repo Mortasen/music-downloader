@@ -138,7 +138,7 @@ class MusicDownloader:
 
         self.downloaded_videos = []
         self.accepted_videos = []
-        self.tags_found_videos = []
+        #self.tags_found_videos = []
 
 
 
@@ -269,8 +269,10 @@ class MusicDownloader:
                 self.button_download.configure(state='disable')
             else:
                 self.button_download.configure(state='normal')
-            if self.expanded and not self.current_video in self.tags_found_videos:
-                self._find_tags()
+            '''#if self.expanded and not self.current_video in self.tags_found_videos:
+            if self.expanded and not self.current_video in self.tags:
+                self._set_tags()
+                self._configure_tags_entries()'''
         if self.current_video == 0:
             self.button_previous.configure(state='disabled')
         if self.current_video < len(self.last_results['entries'])-1:
@@ -286,8 +288,10 @@ class MusicDownloader:
                 self.button_download.configure(state='disable')
             else:
                 self.button_download.configure(state='normal')
-            if self.expanded and not self.current_video in self.tags_found_videos:
-                self._find_tags()
+            '''#if self.expanded and not self.current_video in self.tags_found_videos:
+            if self.expanded and not self.current_video in self.tags:
+                self._set_tags()
+                self._configure_tags_entries()'''
         if self.current_video == len(self.last_results['entries'])-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
@@ -527,11 +531,11 @@ class MusicDownloader:
 
     def _find_tags (self, videoinfo=None):
         if videoinfo is None:
-            if self.current_video in self.tags_found_videos:
+            #if self.current_video in self.tags_found_videos:
+            if self.current_video in self.tags:
                 return self._get_current_video_tags()
             
             videoinfo = self._get_current_video_info()
-            self.tags_found_videos.append(self.current_video)
             
         tags = self.api.get_tags(videoinfo)
         
@@ -568,7 +572,12 @@ class MusicDownloader:
 
     def _configure_tags_entries (self, tags=None):
         if tags is None:
-            tags = self._find_tags()
+            tags = self._get_current_video_tags()
+
+        self.entry_tag_title.delete(0, 'end')
+        self.entry_tag_artist.delete(0, 'end')
+        self.entry_tag_from.delete(0, 'end')
+        self.entry_tag_year.delete(0, 'end')
 
         if 'title' in tags and tags['title']:
             self.entry_tag_title.insert(0, tags['title'])

@@ -5,7 +5,7 @@ import mdapi
 
 import json
 
-#ISSUE: Searching second song, button play still pause
+# [F?] ISSUE: Searching second song, button play still pause
 
 VERSION = '0.6.7.1'
 
