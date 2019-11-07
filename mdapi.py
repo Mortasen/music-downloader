@@ -6,7 +6,6 @@ os = audiojack.os
 urllib = audiojack.urllib
 youtube_dl = audiojack.youtube_dl
 
-
 ydl_opts = {
     'format': 'bestaudio',
     'outtmpl': 'F:\\%(id)s.%(ext)s',

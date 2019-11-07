@@ -322,6 +322,13 @@ class MusicDownloader:
         self.button_download.configure(state='disabled')
         shutil.move(pathfrom, pathto)
         
+        tags = self._get_current_video_tags()
+        file = eyed3.load(pathto)
+        if 'title' in tags: file.tag.title = tags['title']
+        if 'artist' in tags: file.tag.artist = tags['artist'] 
+        if 'album' in tags: file.tag.album = tags['album']
+        if 'lyrics' in tags: file.tag.lyrics.set(tags['lyrics'])
+        
 
     def to_queue (self):
         ...
@@ -352,6 +359,7 @@ class MusicDownloader:
             lyrics = self.api.get_lyrics(track, artist)
             print(' = LYRICS = ')
             print(lyrics)
+            self._get_current_video_tags()['lyrics'] = lyrics
 
         #
         # </CHANGE ALL CHANGE ALL>
@@ -484,7 +492,7 @@ class MusicDownloader:
         self.label_image.current_image = image
         self.label_image.configure(image=self.label_image.current_image)
 
-        self.label_title.configure(text=title)
+        self._set_title(title, 260)
         self.label_uploader.configure(text=uploader)
         self.label_views.configure(text=views)
         self.label_likes.configure(text=likes)
@@ -587,6 +595,17 @@ class MusicDownloader:
             self.entry_tag_from.insert(0, tags['album'])
         if 'year' in tags and tags['year']:
             self.entry_tag_year.insert(0, str(tags['year']))
+
+
+
+    def _set_title (self, title, coef):
+        fontsize = coef // len(title)
+        font = self.appearence['label_title']['font']
+        font[1] = fontsize
+        for i, s in enumerate(title):
+            if ord(s) > 64000:
+		title = title[:i] + '?' + title[i+1:]
+        self.label_title.configure(text=title, font=font)
         
         
 
