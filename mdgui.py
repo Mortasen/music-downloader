@@ -1,6 +1,7 @@
 import mdapi
 import tkinter as tk
 from tkinter import ttk
+from tkinter import font as tkfont
 
 import io
 from PIL import Image, ImageTk
@@ -495,6 +496,7 @@ class MusicDownloader:
     def _set_preview (self, image, title,
                       uploader, views, likes,
                       date, duration):
+        print('_set_preview', title)
         
         self.label_image.current_image = image
         self.label_image.configure(image=self.label_image.current_image)
@@ -510,6 +512,7 @@ class MusicDownloader:
 
     def _show_current_video (self):
         video = self._get_current_video_info()
+        print('_show_current_video', video['title'])
 
         self._set_preview(**self._format_video_info(video))
 
@@ -606,6 +609,7 @@ class MusicDownloader:
 
 
     def _set_title (self, title, coef):
+        '''
         fontsize = coef // len(title)
         font = self.appearence['label_title']['font']
         font[1] = fontsize
@@ -613,6 +617,22 @@ class MusicDownloader:
             if ord(s) > 64000:
                 title = title[:i] + '?' + title[i+1:]
         self.label_title.configure(text=title, font=font)
+        '''
+        print('_set_title', title)
+
+        font_params = self.appearence['label_title']['font']
+        required_width = self.layout['label_title']['width']
+        print('TODAYS REQUIRED WIDTH', required_width)
+        font = tkfont.Font(self.app, font_params[0])
+        size = 2
+        font.configure(size=size)
+        while font.measure(title) < required_width:
+            print('At size', size, 'width of text is', font.measure(title))
+            size += 1
+            font.configure(size=size)
+        print("= OPTIMAL FONT SIZE :", (size-1), "=")
+        font_params[0] = size - 1
+        self.label_title.configure(text=title, font=font_params)
         
         
 
