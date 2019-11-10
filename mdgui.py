@@ -8,6 +8,8 @@ import shutil
 from time import sleep
 import mp3play
 
+import eyed3
+
 from utils import format_number, date_dict, format_date, format_time
 
 os = mdapi.os
@@ -312,6 +314,7 @@ class MusicDownloader:
         video_id = video['id']
         pathfrom = rf"{temp_dir}\{video_id}.mp3"
         # or may be not .mp3?
+        
         dload_dir = self.settings['path']
         if 'track' in video and 'artist' in video:
             filename = self.settings['filename'].format(**video)
@@ -321,13 +324,17 @@ class MusicDownloader:
         self.accepted_videos.append(self.current_video)
         self.button_download.configure(state='disabled')
         shutil.move(pathfrom, pathto)
-        
+
+        self.song.stop()
+        self.song.close()
+
         tags = self._get_current_video_tags()
         file = eyed3.load(pathto)
         if 'title' in tags: file.tag.title = tags['title']
         if 'artist' in tags: file.tag.artist = tags['artist'] 
         if 'album' in tags: file.tag.album = tags['album']
         if 'lyrics' in tags: file.tag.lyrics.set(tags['lyrics'])
+        file.tag.save()
         
 
     def to_queue (self):
@@ -355,11 +362,11 @@ class MusicDownloader:
         track = song_info['track'] if 'track' in song_info else None
         artist = song_info['artist'] if 'artist' in song_info else None
 
-        if track and artist:
-            lyrics = self.api.get_lyrics(track, artist)
-            print(' = LYRICS = ')
-            print(lyrics)
-            self._get_current_video_tags()['lyrics'] = lyrics
+        #if track and artist:
+        lyrics = self.api.get_lyrics(track, artist)
+        print(' = LYRICS = ')
+        print(lyrics)
+        self._get_current_video_tags()['lyrics'] = lyrics
 
         #
         # </CHANGE ALL CHANGE ALL>
@@ -604,7 +611,7 @@ class MusicDownloader:
         font[1] = fontsize
         for i, s in enumerate(title):
             if ord(s) > 64000:
-		title = title[:i] + '?' + title[i+1:]
+                title = title[:i] + '?' + title[i+1:]
         self.label_title.configure(text=title, font=font)
         
         
