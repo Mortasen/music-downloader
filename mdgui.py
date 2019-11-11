@@ -621,17 +621,22 @@ class MusicDownloader:
         print('_set_title', title)
 
         font_params = self.appearence['label_title']['font']
-        required_width = self.layout['label_title']['width']
+        print('FONT GOT: ', font_params)
+        required_width = self.layout['label_title']['width'] - 30
+        # 10 because tkinter.Font won't take 'Roboto' as font family
         print('TODAYS REQUIRED WIDTH', required_width)
-        font = tkfont.Font(self.app, font_params[0])
+        font = tkfont.Font(self.app, font_params)
+        print('TKFONT ACTUAL:', font.actual())
         size = 2
         font.configure(size=size)
         while font.measure(title) < required_width:
             print('At size', size, 'width of text is', font.measure(title))
             size += 1
+            if size > 18: break
             font.configure(size=size)
         print("= OPTIMAL FONT SIZE :", (size-1), "=")
-        font_params[0] = size - 1
+        font_params[1] = size - 1
+        print("FONT PARAMS:", font_params)
         self.label_title.configure(text=title, font=font_params)
         
         
