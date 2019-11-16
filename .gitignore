@@ -1,4 +1,4 @@
-res/*
+res
 __pycache__/*
 !res/layouts/default.json
 !res/localizations/strings-en.json
