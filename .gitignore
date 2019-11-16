@@ -1,7 +1,14 @@
 __pycache__/*
+
 res/*
 !res/layouts
 res/layouts/*
 !res/layouts/default.json
+
+!res/localizations
+res/localizations/*
 !res/localizations/strings-en.json
+
+!res/themes
+res/themes/*
 !res/themes/default.json
