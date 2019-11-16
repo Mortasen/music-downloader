@@ -64,6 +64,7 @@ class MusicDownloader:
         'chbox_reserved',
         'button_expand',
         'button_expand_2',
+        'button_settings',
         
         'label_tag_title',
         'entry_tag_title',
@@ -201,6 +202,8 @@ class MusicDownloader:
         self.chbox_reserved = tk.Checkbutton(root, **self.appearence['chbox_reserved'])
         self.button_expand = tk.Button(root, **self.appearence['button_expand'])
         self.button_expand.configure(command=self.expand)
+        self.button_settings = tk.Button(root, **self.appearence['button_settings'])
+        self.button_settings.configure(command=self.open_settings)
 
 
         self.label_tag_title = tk.Label(root, **self.appearence['label_tag_title'])
@@ -397,6 +400,28 @@ class MusicDownloader:
                                      command=self.expand)
         self.expanded = False
 
+
+    def open_settings (self):
+        settings_window = tk.Toplevel()
+        settings_window.wm_title("MusicDownloader settings")
+        try:
+            settings_window.geometry("160x100")
+        except:
+            pass
+        sw_label_settings = tk.Label(settings_window, text="SETTINGS")
+        # make center or remove
+        sw_label_settings.place(x=10, y=20)
+        sw_label_bitrate = tk.Label(settings_window, text="Bitrate: ")
+        sw_label_bitrate.place(x=10, y=50)
+        sw_entry_bitrate = tk.Entry(settings_window)
+        sw_entry_bitrate.place(x=70, y=50, width=90)
+        sw_label_limit = tk.Label(settings_window, text="Limit: ")
+        sw_label_limit.place(x=10, y=50)
+        sw_entry_limit.place
+        for el in SETTINGS_WIDGETS: # should be besides that APP_WIDGETS and TAGS_WIDGETS
+            setattr(self, el, tk.<CLASSNAME>(settings_window, **attrs))
+            getattr(self, el).place(**attrs)
+
         
 
     def run (self):
@@ -426,6 +451,7 @@ class MusicDownloader:
         self.chbox_zipfile.place(**self.layout['chbox_zipfile'])
         #self.chbox_reserved.place(**self.layout['chbox_reserved'])
         self.button_expand.place(**self.layout['button_expand'])
+        self.button_settings.place(**self.layout['button_settings'])
 
 
         self.label_tag_title.place(**self.layout['label_tag_title'])
@@ -622,7 +648,7 @@ class MusicDownloader:
 
         font_params = self.appearence['label_title']['font']
         print('FONT GOT: ', font_params)
-        required_width = self.layout['label_title']['width'] - 30
+        required_width = self.layout['label_title']['width']
         # 10 because tkinter.Font won't take 'Roboto' as font family
         print('TODAYS REQUIRED WIDTH', required_width)
         font = tkfont.Font(self.app, font_params)

@@ -1,3 +1,6 @@
-data/
+res/
 __pycache__/
 shutil.py
+!res/layouts/default.json
+!res/localizations/strings-en.json
+!res/themes/default.json
