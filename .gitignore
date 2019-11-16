@@ -1,5 +1,7 @@
-res/*
 __pycache__/*
+res/*
+!res/layouts
+res/layouts/*
 !res/layouts/default.json
 !res/localizations/strings-en.json
 !res/themes/default.json
