@@ -1,17 +1,17 @@
 SETTINGS:
-bitrate: 				320 255 180 ...
-limit to download info: 1 ... 30
-predownload: 			+ -
-temp directory			F:\Temp
-Remember last options	+ -
-directory default		F:\Music
-filename default		{artist} - {track}.mp3
-database default		F:\Music\Music.msql
-parallel threads		2 3 4
-FPS						5 10 15 20 30 40 50 60
-theme					default
-layout					default
-language				English
+bitrate: 				320 255 180 ...		Spinner
+limit to download info: 1 ... 30			Spinner
+predownload: 			+ -					Chbox
+temp directory			F:\Temp				Entry
+Remember last options	+ -					Chbox
+directory default		F:\Music			Entry
+filename default		{artist} - {track}.mp3	Entry
+database default		F:\Music\Music.msql		Entry
+parallel threads		2 3 4					Spinner
+FPS						5 10 15 20 30 40 50 60	Spinner
+theme					default					OptionMenu
+layout					default					OptionMenu
+language				English					OptionMenu
 first tag priority 		musicbrainzngns / youtube / last.fm / soundcloud
 second tag priority 	musicbrainzngns / youtube / last.fm / soundcloud
 add info to database	+-
