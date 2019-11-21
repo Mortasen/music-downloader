@@ -108,6 +108,53 @@ class MusicDownloader:
         ]
 
     def __init__ (self, api, layout, localization, theme, settings):
+        self.settings = settings
+
+        self.expanded = False
+
+        app_widgets = layout['app_widgets']
+        tag_widgets = layout['tag_widgets']
+        set_widgets = layout['set_widgets']
+
+        app_widgets_configs = {element_id: {} for element_id in layout['app_widgets']}
+        tag_widgets_configs = {element_id: {} for element_id in layout['tag_widgets']}
+        set_widgets_configs = {element_id: {} for element_id in layout['set_widgets']}
+
+        for option_source in (localization, theme):
+            for element_id in option_source['app_widgets']:
+                for option_key in option_source['app_widgets'][option_key]
+                    app_widgets_configs[element_id][option_key] \
+                        = option_source['app_widgets'][option_key]
+
+            for element_id in option_source['tag_widgets']:
+                for option_key in option_source['tag_widgets'][option_key]
+                    tag_widgets_configs[element_id][option_key] \
+                        = option_source['tag_widgets'][option_key]
+
+            for element_id in option_source['set_widgets']:
+                for option_key in option_source['set_widgets'][option_key]
+                    set_widgets_configs[element_id][option_key] \
+                        = option_source['set_widgets'][option_key]
+
+        self.app_widgets = app_widgets
+        self.tag_widgets = tag_widgets
+        self.set_widgets = set_widgets
+
+        self.app_widgets_configs = app_widgets_configs
+        self.tag_widgets_configs = tag_widgets_configs
+        self.set_widgets_configs = set_widgets_configs
+                    
+        
+        self.configure()
+
+        self.api = api
+
+        self.downloaded_videos = []
+        self.accepted_videos = []
+        #self.tags_found_videos = []
+
+
+    def OLD__init__ (self, api, layout, localization, theme, settings):
         self.layout = layout
         self.loc = localization
         self.theme = theme
