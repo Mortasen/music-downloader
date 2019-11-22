@@ -28,9 +28,9 @@ def load_settings ():
 
 def load_layout (name):
     try:
-        layout_file = open(rf'data\layouts\{name}.json', 'r')
+        layout_file = open(rf'res\layouts\{name}.json', 'r')
     except FileNotFoundError:
-        layout_file = open(r'data\layouts\default.json', 'r')
+        layout_file = open(r'res\layouts\default.json', 'r')
     layout = json.load(layout_file)
     layout_file.close()
     return layout
@@ -38,19 +38,18 @@ def load_layout (name):
 def load_localization (lang):
     # get system language
     try:
-        loc_file = open(rf'data\localizations\strings-{lang}.json', 'r')
+        loc_file = open(rf'res\localizations\strings-{lang}.json', 'r')
     except FileNotFoundError:
-        loc_file = open(r'data\localizations\strings-en.json', 'r')
+        loc_file = open(r'res\localizations\strings-en.json', 'r')
     loc = json.load(loc_file)
     loc_file.close()
     return loc
 
 def load_theme (name):
     try:
-        theme_file = open(rf'data\themes\{name}.json', 'r')
+        theme_file = open(rf'res\themes\{name}.json', 'r')
     except FileNotFoundError:
-        print()
-        theme_file = open(r'data\themes\default.json', 'r')
+        theme_file = open(r'res\themes\default.json', 'r')
     theme = json.load(theme_file)
     theme_file.close()
     return theme
