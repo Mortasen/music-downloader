@@ -1,7 +1,5 @@
 import mdapi
-import tkinter as tk
-from tkinter import ttk
-from tkinter import font as tkfont
+import mtkinter as tk
 
 import io
 from PIL import Image, ImageTk
@@ -11,7 +9,8 @@ import mp3play
 
 import eyed3
 
-from utils import format_number, date_dict, format_date, format_time
+from utils import format_number, date_dict, format_date, \
+     format_time, dict_without_keys
 
 os = mdapi.os
 
@@ -122,19 +121,22 @@ class MusicDownloader:
 
         for option_source in (localization, theme):
             for element_id in option_source['app_widgets']:
-                for option_key in option_source['app_widgets'][option_key]
+                for option_key in option_source['app_widgets'][element_id]:
+                    print(option_source)
+                    print(element_id)
+                    print(option_key)
                     app_widgets_configs[element_id][option_key] \
-                        = option_source['app_widgets'][option_key]
+                        = option_source['app_widgets'][element_id][option_key]
 
             for element_id in option_source['tag_widgets']:
-                for option_key in option_source['tag_widgets'][option_key]
+                for option_key in option_source['tag_widgets'][element_id]:
                     tag_widgets_configs[element_id][option_key] \
-                        = option_source['tag_widgets'][option_key]
+                        = option_source['tag_widgets'][element_id][option_key]
 
             for element_id in option_source['set_widgets']:
-                for option_key in option_source['set_widgets'][option_key]
+                for option_key in option_source['set_widgets'][element_id]:
                     set_widgets_configs[element_id][option_key] \
-                        = option_source['set_widgets'][option_key]
+                        = option_source['set_widgets'][element_id][option_key]
 
         self.app_widgets = app_widgets
         self.tag_widgets = tag_widgets
@@ -192,8 +194,60 @@ class MusicDownloader:
         #self.tags_found_videos = []
 
 
-
     def configure (self):
+        app = tk.Tk()
+        app_measure = self.app_widgets['app']
+        app_configs = self.app_widgets_configs['app']
+        
+        if 'title' in app_configs:
+            app.title(app_configs['title'])
+        if 'bg' in app_configs:
+            app.configure(bg=app_configs['bg'])
+        if 'image' in app_configs:
+            app.configure(image=app_configs['image'])
+        if 'width' in app_measure and 'height' in app_measure:
+            app.geometry(f"{app_measure['width']}x{app_measure['height']}")
+        if 'resizable_x' in app_measure:
+            app.resizable(x=app_measure['resizable_x'])
+        if 'resizable_y' in app_measure:
+            app.resizable(y=app_measure['resizable_y'])
+
+        for element_id in self.app_widgets:
+            configs = self.app_widgets[element_id]
+            if not 'class' in configs:
+                continue
+            init_configs = self.app_widgets_configs[element_id]
+            
+            widget_class = getattr(tk, configs['class'])
+            widget = widget_class(app, **init_configs)
+            
+            if 'command' in configs:
+                func = getattr(self, configs['command'])
+                widget.configure(command=func)
+                
+            setattr(self, element_id, widget)
+
+        for element_id in self.tag_widgets:
+            configs = self.tag_widgets[element_id]
+            if not 'class' in configs:
+                continue
+            init_configs = self.tag_widgets_configs[element_id]
+            
+            widget_class = getattr(tk, configs['class'])
+            widget = widget_class(app, **init_configs)
+            
+            if 'command' in configs:
+                func = getattr(self, configs['command'])
+                widget.configure(command=func)
+                
+            setattr(self, element_id, widget)
+
+        self.app = app
+
+
+
+    def OLDconfigure (self):
+        '''
         self.app = tk.Tk()
         app_configs = self.appearence['app']
         app_measure = self.layout['app']
@@ -271,6 +325,8 @@ class MusicDownloader:
         self.entry_tag_mood = tk.Entry(root, **self.appearence['entry_tag_mood'])
         self.label_tag_mark = tk.Label(root, **self.appearence['label_tag_mark'])
         self.entry_tag_mark = tk.Entry(root, **self.appearence['entry_tag_mark'])
+        '''
+        pass
 
         
 
@@ -431,9 +487,9 @@ class MusicDownloader:
         self.button_play.configure(text='||', command=self.pause_song)
 
     def expand (self, *args):
-        app_2 = self.layout['app_2']
-        self._set_geometry(app_2['width'], app_2['height'])
-        self.button_expand.configure(text=self.appearence['button_expand_2']['text'],
+        app = self.tag_widgets['app']
+        self._set_geometry(app['width'], app['height'])
+        self.button_expand.configure(text=self.tag_widgets_configs['button_expand']['text'],
                                      command=self.reduce)
         self._set_tags()
         self._configure_tags_entries()
@@ -441,9 +497,9 @@ class MusicDownloader:
         
 
     def reduce (self, *args):
-        app_1 = self.layout['app']
-        self._set_geometry(app_1['width'], app_1['height'])
-        self.button_expand.configure(text=self.appearence['button_expand']['text'],
+        app = self.app_widgets['app']
+        self._set_geometry(app['width'], app['height'])
+        self.button_expand.configure(text=self.tag_widgets_configs['button_expand']['text'],
                                      command=self.expand)
         self.expanded = False
 
@@ -455,23 +511,23 @@ class MusicDownloader:
             settings_window.geometry("160x100")
         except:
             pass
-        sw_label_settings = tk.Label(settings_window, text="SETTINGS")
-        # make center or remove
-        sw_label_settings.place(x=10, y=20)
-        sw_label_bitrate = tk.Label(settings_window, text="Bitrate: ")
-        sw_label_bitrate.place(x=10, y=50)
-        sw_entry_bitrate = tk.Entry(settings_window)
-        sw_entry_bitrate.place(x=70, y=50, width=90)
-        sw_label_limit = tk.Label(settings_window, text="Limit: ")
-        sw_label_limit.place(x=10, y=50)
-        sw_entry_limit.place
-        for el in SETTINGS_WIDGETS: # should be besides that APP_WIDGETS and TAGS_WIDGETS
-            setattr(self, el, tk.<CLASSNAME>(settings_window, **attrs))
-            getattr(self, el).place(**attrs)
+        
+        for element_id in self.set_widgets:
+            configs = self.set_widgets[element_id]
+            init_configs = self.set_widgets_configs[element_id]
+            
+            widget_class = getattr(tk, configs['class'])
+            widget = widget_class(settings_window, **init_configs)
+            
+            if 'command' in configs:
+                func = getattr(self, configs['command'])
+                widget.configure(command=func)
+                
+            setattr(self, element_id, widget)
 
         
 
-    def run (self):
+    def OLDrun (self):
         self.label_query.place(**self.layout['label_query'])
         self.entry_query.place(**self.layout['entry_query'])
         self.button_search.place(**self.layout['button_search'])
@@ -519,6 +575,25 @@ class MusicDownloader:
         self.entry_tag_mood.place(**self.layout['entry_tag_mood'])
         self.label_tag_mark.place(**self.layout['label_tag_mark'])
         self.entry_tag_mark.place(**self.layout['entry_tag_mark'])
+
+        self.app.mainloop()
+
+
+
+    def run (self):
+        for element_id in self.app_widgets:
+            if not 'class' in self.app_widgets[element_id]:
+                continue
+            widget = getattr(self, element_id)
+            configs = dict_without_keys(self.app_widgets[element_id], 'class', 'command')
+            widget.place(**configs)
+
+        for element_id in self.tag_widgets:
+            if not 'class' in self.tag_widgets[element_id]:
+                continue
+            widget = getattr(self, element_id)
+            configs = dict_without_keys(self.tag_widgets[element_id], 'class', 'command')
+            widget.place(**configs)
 
         self.app.mainloop()
 
