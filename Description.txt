@@ -16,3 +16,4 @@ first tag priority 		musicbrainzngns / youtube / last.fm / soundcloud
 second tag priority 	musicbrainzngns / youtube / last.fm / soundcloud
 add info to database	+-
 zip algorithm 			None DEFLATE RAR ZIP LWZ 
+sf
