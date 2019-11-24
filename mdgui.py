@@ -122,9 +122,6 @@ class MusicDownloader:
         for option_source in (localization, theme):
             for element_id in option_source['app_widgets']:
                 for option_key in option_source['app_widgets'][element_id]:
-                    print(option_source)
-                    print(element_id)
-                    print(option_key)
                     app_widgets_configs[element_id][option_key] \
                         = option_source['app_widgets'][element_id][option_key]
 
@@ -171,7 +168,6 @@ class MusicDownloader:
         for el in self.ELEMENTS:
             if el in localization:
                 for field in localization[el]:
-                    print(el, field)
                     appearence[el][field] = localization[el][field]
             if el in theme:
                 for field in theme[el]:
@@ -224,6 +220,7 @@ class MusicDownloader:
             if 'command' in configs:
                 func = getattr(self, configs['command'])
                 widget.configure(command=func)
+                print('assigned func', func, 'to widget', configs)
                 
             setattr(self, element_id, widget)
 
@@ -505,7 +502,9 @@ class MusicDownloader:
 
 
     def open_settings (self):
-        settings_window = tk.Toplevel()
+        print("="*60)
+        print("================== SETTINGS DEBUG ===================")
+        print("="*60)
         settings_window.wm_title("MusicDownloader settings")
         try:
             settings_window.geometry("160x100")
@@ -768,12 +767,12 @@ class MusicDownloader:
         '''
         print('_set_title', title)
 
-        font_params = self.appearence['label_title']['font']
+        font_params = self.app_widgets_configs['label_title']['font']
         print('FONT GOT: ', font_params)
-        required_width = self.layout['label_title']['width']
+        required_width = self.app_widgets['label_title']['width']
         # 10 because tkinter.Font won't take 'Roboto' as font family
         print('TODAYS REQUIRED WIDTH', required_width)
-        font = tkfont.Font(self.app, font_params)
+        font = tk.Font(self.app, font_params)
         print('TKFONT ACTUAL:', font.actual())
         size = 2
         font.configure(size=size)
