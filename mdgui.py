@@ -503,15 +503,19 @@ class MusicDownloader:
 
     def open_settings (self):
         print("="*60)
-        print("================== SETTINGS DEBUG ===================")
+        print("==================== SETTINGS DEBUG =====================")
         print("="*60)
+        settings_window = tk.Toplevel()
+        
         settings_window.wm_title("MusicDownloader settings")
+        settings_window.configure(bg=self.app_widgets_configs['app']['bg'])
         try:
-            settings_window.geometry("160x100")
+            settings_window.geometry("400x560")
         except:
             pass
         
         for element_id in self.set_widgets:
+            print(element_id)
             configs = self.set_widgets[element_id]
             init_configs = self.set_widgets_configs[element_id]
             
@@ -523,6 +527,13 @@ class MusicDownloader:
                 widget.configure(command=func)
                 
             setattr(self, element_id, widget)
+
+        for element_id in self.set_widgets:
+            if not 'class' in self.set_widgets[element_id]:
+                continue
+            widget = getattr(self, element_id)
+            configs = dict_without_keys(self.set_widgets[element_id], 'class', 'command')
+            widget.place(**configs)
 
         
 
