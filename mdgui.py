@@ -675,6 +675,30 @@ class MusicDownloader:
         self._set_preview(**self._format_video_info(video))
 
 
+    def _get_settings (self):
+        if self.settings_window is not None:
+            bitrate = self.s_spinner_bitrate.get()
+            limit = self.s_entry_limit.get()
+            predownload = self.s_chbox_predownload.get()
+            temp_directory = self.s_entry_temp_directory.get()
+            last_options = self.s_chbox_last_options.get()
+            default_filename = self.s_entry_default_filename.get()
+            default_directory = self.s_entry_default_directory.get()
+            connect_to_database = self.s_chbox_connect_to_database.get()
+            database_location = self.s_entry_database_location
+        else:
+            return self.settings
+
+    def _set_settings (self):
+        ...
+
+    def _save_settings (self):
+        ...
+
+    def _close_settings (self):
+        ...
+
+
     '''def _find_tags (self, video_info=None):
         if video_info is None:
             video_info = self._get_current_video_info()
