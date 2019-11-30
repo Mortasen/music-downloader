@@ -110,6 +110,7 @@ class MusicDownloader:
         self.settings = settings
 
         self.expanded = False
+        self.settings_is_open = False
 
         app_widgets = layout['app_widgets']
         tag_widgets = layout['tag_widgets']
@@ -505,18 +506,33 @@ class MusicDownloader:
         print("="*60)
         print("==================== SETTINGS DEBUG =====================")
         print("="*60)
-        settings_window = tk.Toplevel()
+
+        settings_window_measure = self.set_widgets['settings_window']
+        settings_window_configs = self.set_widgets_configs['settings_window']
         
-        settings_window.wm_title("MusicDownloader settings")
-        settings_window.configure(bg=self.app_widgets_configs['app']['bg'])
-        try:
-            settings_window.geometry("400x560")
-        except:
-            pass
+        settings_window = tk.Toplevel()
+        self.settings_window = settings_window
+        self.settings_is_open = True
+
+        if 'title' in settings_window_configs:
+            settings_window.title(settings_window_configs['title'])
+        if 'bg' in settings_window_configs:
+            settings_window.configure(bg=settings_window_configs['bg'])
+        if 'image' in settings_window_configs:
+            settings_window.configure(image=settings_window_configs['image'])
+        if 'width' in settings_window_measure and 'height' in settings_window_measure:
+            settings_window.geometry(
+                f"{settings_window_measure['width']}x{settings_window_measure['height']}"
+                )
+        if 'resizable_x' in settings_window_measure:
+            settings_window.resizable(x=settings_window_measure['resizable_x'])
+        if 'resizable_y' in settings_window_measure:
+            settings_window.resizable(y=settings_window_measure['resizable_y'])
         
         for element_id in self.set_widgets:
-            print(element_id)
             configs = self.set_widgets[element_id]
+            if not 'class' in configs:
+                continue
             init_configs = self.set_widgets_configs[element_id]
             
             widget_class = getattr(tk, configs['class'])
@@ -535,7 +551,16 @@ class MusicDownloader:
             configs = dict_without_keys(self.set_widgets[element_id], 'class', 'command')
             widget.place(**configs)
 
-        
+
+    def apply_settings (self):
+        settings = self._get_settings()
+        self._save_settings(settings)
+        self.close_settings()
+
+    def close_settings (self):
+        self.settings_window.destroy()
+        self.settings_is_open = False
+
 
     def OLDrun (self):
         self.label_query.place(**self.layout['label_query'])
@@ -676,23 +701,34 @@ class MusicDownloader:
 
 
     def _get_settings (self):
-        if self.settings_window is not None:
-            bitrate = self.s_spinner_bitrate.get()
-            limit = self.s_entry_limit.get()
-            predownload = self.s_chbox_predownload.get()
-            temp_directory = self.s_entry_temp_directory.get()
-            last_options = self.s_chbox_last_options.get()
-            default_filename = self.s_entry_default_filename.get()
-            default_directory = self.s_entry_default_directory.get()
-            connect_to_database = self.s_chbox_connect_to_database.get()
-            database_location = self.s_entry_database_location
+        if self.settings_is_open:
+            settings = {}
+            settings['bitrate'] = self.s_spinner_bitrate.get()
+            settings['limit'] = self.s_entry_limit.get()
+            settings['predownload'] = self.s_chbox_predownload.get()
+            settings['temp_directory'] = self.s_entry_temp_directory.get()
+            settings['last_options'] = self.s_chbox_last_options.get()
+            settings['default_filename'] = self.s_entry_default_filename.get()
+            settings['default_directory'] = self.s_entry_default_directory.get()
+            settings['connect_to_database'] = self.s_chbox_connect_to_database.get()
+            settings['database_location'] = self.s_entry_database_location.get()
+            settings['parallel_threads'] = self.s_spinner_parallel_threads.get()
+            settings['fps'] = self.s_spinner_fps.get()
+            settings['layout'] = self.s_list_layout.get()
+            settings['theme'] = self.s_list_language.get()
+            settings['language'] = self.s_list_language.get()
+            settings['first_tag_priority'] = self.s_list_first_tag_priority.get()
+            settings['second_tag_priority'] = self.s_list_second_tag_priority.get()
+            settings['zip_files'] = self.s_chbox_zip_files.get()
+            settings['zip_algorithm'] = self.s_list_zip_algorithm.get()
+            return settings
         else:
             return self.settings
 
-    def _set_settings (self):
+    def _set_settings (self, settings):
         ...
 
-    def _save_settings (self):
+    def _save_settings (self, settings):
         ...
 
     def _close_settings (self):
@@ -807,7 +843,7 @@ class MusicDownloader:
         required_width = self.app_widgets['label_title']['width']
         # 10 because tkinter.Font won't take 'Roboto' as font family
         print('TODAYS REQUIRED WIDTH', required_width)
-        font = tk.Font(self.app, font_params)
+        font = tk.tkfont.Font(self.app, font_params)
         print('TKFONT ACTUAL:', font.actual())
         size = 2
         font.configure(size=size)
