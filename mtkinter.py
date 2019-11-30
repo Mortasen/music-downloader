@@ -66,39 +66,141 @@ class EntryWithPlaceholder:
         else:
             self.___obj.bind(event, func)
 
+    def configure (self, **kw):
+        options = {'text': ''}      
+        ph_options = {'text': ''}   # default
+        for option in kw:
+            if option.startswith('ph'):
+                value = kw[option]
+                option = option[2:]
+                ph_options[option] = value
+            else:
+                options[option] = kw[option]
 
-class EntryFileLocation:
+        self.___options = options
+        self.___ph_options = ph_options
+        self.___setup(ph_options)
 
-    def __init__ (self, root, **options):
+
+class EntryDirectory:
+
+    def __init__ (self, root, **kw):
+        self.root = root
+        options = {}      
+        button_options = {'text': 'O'}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
         self.___obj = Entry(root, **options)
-        self.___obj.bind('<Button-1>', self.___click)
+        self.button_overview = Button(root, **button_options)
+        self.button_overview.configure(command=self.___click)
         self.__dir__ = self.___obj.__dir__
-        self.___user_button1_func = lambda *_: None
+        self.___user_button_func = lambda *_: None
 
     def __getattr__ (self, name):
         return getattr(self.___obj, name)
 
     def ___click (self, *args):
-        file_path = tkfd.askopenfilename()
+        directory = tkfd.askopenfilename()
         self.___obj.delete(0, 'end')
-        self.___obj.insert(0, file_path)
-        self.___user_button1_func(*args)
+        self.___obj.insert(0, directory)
+        self.___user_button_func(*args)
+        self.root.focus_force() # due to unknown reasons
+        # window disappear after clicking on overview button
+        # it makes window focused again
 
-    def bind (self, event, func):
-        if event == '<Button-1>':
-            ___user_button1_func = func
-        else:
-            self.___obj.bind(event, func)
+    def configure (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        if 'command' in button_options:
+            self.___user_button_func = button_options.pop('command')
+                
+        self.___obj.configure(**options)
+        self.button_overview.configure(**button_options)
+
+    def pack (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        self.___obj.pack(**options)
+        self.button_overview.pack(**button_options)
+
+    def grid (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        self.___obj.grid(**options)
+        self.button_overview.grid(**button_options)
+
+    def place (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        button_default_options = {
+            'x': options['x'] + options['width'] + 5,
+            'y': options['y'],
+            'width': 20,
+            'height': 20
+            }
+
+        button_options = {**button_default_options, **button_options}
+
+        self.___obj.place(**options)
+        self.button_overview.place(**button_options)
 
 
 
 class EntryDirectory:
 
-    def __init__ (self, root, **options):
+    def __init__ (self, root, **kw):
+        self.root = root
+        options = {}      
+        button_options = {'text': 'O'}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
         self.___obj = Entry(root, **options)
-        self.___obj.bind('<Button-1>', self.___click)
+        self.button_overview = Button(root, **button_options)
+        self.button_overview.configure(command=self.___click)
         self.__dir__ = self.___obj.__dir__
-        self.___user_button1_func = lambda *_: None
+        self.___user_button_func = lambda *_: None
 
     def __getattr__ (self, name):
         return getattr(self.___obj, name)
@@ -107,10 +209,75 @@ class EntryDirectory:
         directory = tkfd.askdirectory()
         self.___obj.delete(0, 'end')
         self.___obj.insert(0, directory)
-        self.___user_button1_func(*args)
+        self.___user_button_func(*args)
+        self.root.focus_force() # due to unknown reasons
+        # window disappear after clicking on overview button
+        # it makes window focused again
 
-    def bind (self, event, func):
-        if event == '<Button-1>':
-            ___user_button1_func = func
-        else:
-            self.___obj.bind(event, func)
+    def configure (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        if 'command' in button_options:
+            self.___user_button_func = button_options.pop('command')
+                
+        self.___obj.configure(**options)
+        self.button_overview.configure(**button_options)
+
+    def pack (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        self.___obj.pack(**options)
+        self.button_overview.pack(**button_options)
+
+    def grid (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        self.___obj.grid(**options)
+        self.button_overview.grid(**button_options)
+
+    def place (self, **kw):
+        options = {}      
+        button_options = {}   # default
+        for option in kw:
+            if option.startswith('button'):
+                value = kw[option]
+                option = option[6:]
+                button_options[option] = value
+            else:
+                options[option] = kw[option]
+
+        button_default_options = {
+            'x': options['x'] + options['width'] + 5,
+            'y': options['y'],
+            'width': 20,
+            'height': 20
+            }
+
+        button_options = {**button_default_options, **button_options}
+
+        self.___obj.place(**options)
+        self.button_overview.place(**button_options)
