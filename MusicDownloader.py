@@ -11,14 +11,23 @@ VERSION = '0.6.7.1'
 
 settings_ex = {
     'bitrate': 256,
-    'videolimit': 3,
+    'limit': 3,
     'predownload': True,
-    'temp_dir': 'F:', #'C:\\Windows\\Temp',
-    'path': 'F:\\Music\\Music',
-    'filename': '{artist} - {track}.mp3',
-    'layout': 'default',
-    'language': 'en',
-    'theme': 'default'
+    'temp_directory': 'F:', #'C:\\Windows\\Temp',
+    'last_options': True,
+    'default_filename': '{artist} - {track}.mp3',
+    'default_directory': 'F:\\Music\\Music',
+    'connect_to_database': False,
+    'database_location': 'NONE',
+    'parallel_threads': 3,
+    'fps': 2,
+    'layout': 'Default',
+    'language': 'English',
+    'theme': 'Default',
+    'first_tag_priority': 'Youtube',
+    'second_tag_priority': 'MusicBrainzngns',
+    'zip_files': False,
+    'zip_algorithm': 'NONE'
     }
 
 
