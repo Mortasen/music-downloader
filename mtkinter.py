@@ -4,6 +4,8 @@ from tkinter import filedialog as tkfd
 from tkinter import messagebox as tkmb
 from tkinter import font as tkfont
 
+tkCheckbutton = Checkbutton
+
 CONFLICTS = ['Button', 'Checkbutton',
              'Entry', 'Frame',
              'Label', 'LabelFrame',
@@ -82,7 +84,7 @@ class EntryWithPlaceholder:
         self.___setup(ph_options)
 
 
-class EntryDirectory:
+class EntryFileLocation:
 
     def __init__ (self, root, **kw):
         self.root = root
@@ -281,3 +283,16 @@ class EntryDirectory:
 
         self.___obj.place(**options)
         self.button_overview.place(**button_options)
+
+
+class Checkbutton:
+    def __init__ (self, *args, **kwargs):
+        var = IntVar()
+        self.___obj = tkCheckbutton(*args, variable=var, **kwargs)
+        self.___obj.var = var
+        self.___obj.get = self.___obj.var.get
+        self.___obj.set = self.___obj.var.set
+        self.__dir__ = self.___obj.__dir__
+
+    def __getattr__ (self, name):
+        return getattr(self.___obj, name)
