@@ -551,15 +551,27 @@ class MusicDownloader:
             configs = dict_without_keys(self.set_widgets[element_id], 'class', 'command')
             widget.place(**configs)
 
+        self._set_settings(self.settings)
+
 
     def apply_settings (self):
         settings = self._get_settings()
         self._save_settings(settings)
-        self.close_settings()
-
-    def close_settings (self):
         self.settings_window.destroy()
         self.settings_is_open = False
+
+    def cancel_settings (self):
+        self.settings_window.destroy()
+        self.settings_is_open = False
+
+    def close_settings (self):
+        settings = self._get_settings()
+        if settings != self.settings:
+            # make askyesno
+            if yes:
+                self.apply_settings()
+            else:
+                self.cancel_settings()
 
 
     def OLDrun (self):
@@ -726,13 +738,43 @@ class MusicDownloader:
             return self.settings
 
     def _set_settings (self, settings):
-        ...
+        if self.settings_is_open:
+            self.s_spinner_bitrate.delete(0, 'end')
+            self.s_spinner_bitrate.insert(0, settings['bitrate'])
+            self.s_entry_limit.delete(0, 'end')
+            self.s_entry_limit.insert(0, settings['limit'])
+            self.s_chbox_predownload.set(settings['predownload'])
+            self.s_entry_temp_directory.delete(0, 'end')
+            self.s_entry_temp_directory.insert(0, settings['temp_directory'])
+            self.s_chbox_last_options.set(settings['last_options'])
+            self.s_entry_default_filename.delete(0, 'end')
+            self.s_entry_default_filename.insert(0, settings['default_filename'])
+            self.s_entry_default_directory.delete(0, 'end')
+            self.s_entry_default_directory.insert(0, settings['default_directory'])
+            self.s_chbox_connect_to_database.set(settings['connect_to_database'])
+            self.s_entry_database_location.delete(0, 'end')
+            self.s_entry_database_location.insert(0, settings['database_location'])
+            self.s_spinner_parallel_threads.delete(0, 'end')
+            self.s_spinner_parallel_threads.insert(0, settings['parallel_threads'])
+            self.s_spinner_fps.delete(0, 'end')
+            self.s_spinner_fps.insert(0, settings['fps'])
+            self.s_list_layout.delete(0, 'end')
+            self.s_list_layout.insert(0, settings['layout'])
+            self.s_list_theme.delete(0, 'end')
+            self.s_list_theme.insert(0, settings['theme'])
+            self.s_list_language.delete(0, 'end')
+            self.s_list_language.insert(0, settings['language'])
+            self.s_list_first_tag_priority.delete(0, 'end')
+            self.s_list_first_tag_priority.insert(0, settings['first_tag_priority'])
+            self.s_list_second_tag_priority.delete(0, 'end')
+            self.s_list_second_tag_priority.insert(0, settings['second_tag_priority'])
+            self.s_chbox_zip_files.set(settings['zip_files'])
+            self.s_list_zip_algorithm.delete(0, 'end')
+            self.s_list_zip_algorithm.insert(0, settings['zip_algorithm'])
 
     def _save_settings (self, settings):
-        ...
-
-    def _close_settings (self):
-        ...
+        settings_file = open('settings_file', 'w')
+        json.dump(settings, settings_file)
 
 
     '''def _find_tags (self, video_info=None):
