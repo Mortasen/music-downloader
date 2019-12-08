@@ -4,13 +4,14 @@ import mdgui
 import mdapi
 
 import json
+import sys
 
 # [F?] ISSUE: Searching second song, button play still pause
 
-VERSION = '0.6.7.1'
+VERSION = '0.7.9.6'
 
 settings_ex = {
-    'bitrate': 256,
+    'bitrate': 96,
     'limit': 3,
     'predownload': True,
     'temp_directory': 'F:', #'C:\\Windows\\Temp',
@@ -25,21 +26,36 @@ settings_ex = {
     'language': 'English',
     'theme': 'Default',
     'first_tag_priority': 'Youtube',
-    'second_tag_priority': 'MusicBrainzngns',
+    'second_tag_priority': 'MusicBrainzngs',
     'zip_files': False,
     'zip_algorithm': 'NONE'
     }
 
+current_file = sys.executable if getattr(sys, 'frozen', False) else __file__
+
+local_dir = '\\'.join(current_file.split('\\')[:-1]) # (os.path.dirname)
+
+
+def local_open (localfilepath, mode, *args, **kwargs):
+    absfilepath = local_dir + '\\' + localfilepath
+    file = open(absfilepath, mode, *args, **kwargs)
+    return file
 
 def load_settings ():
-    return settings_ex
+    settings_file = local_open('settings_file', 'r')
+    settings = json.load(settings_file)
+    return settings
 
+def save_settings (settings):
+    settings_file = local_open('settings_file', 'w')
+    json.dump(settings, settings_file)
+    
 
 def load_layout (name):
     try:
-        layout_file = open(rf'res\layouts\{name}.json', 'r')
+        layout_file = local_open(rf'res\layouts\{name}.json', 'r')
     except FileNotFoundError:
-        layout_file = open(r'res\layouts\default.json', 'r')
+        layout_file = local_open(r'res\layouts\default.json', 'r')
     layout = json.load(layout_file)
     layout_file.close()
     return layout
@@ -47,21 +63,41 @@ def load_layout (name):
 def load_localization (lang):
     # get system language
     try:
-        loc_file = open(rf'res\localizations\strings-{lang}.json', 'r')
+        loc_file = local_open(rf'res\localizations\strings-{lang}.json', 'r')
     except FileNotFoundError:
-        loc_file = open(r'res\localizations\strings-en.json', 'r')
+        loc_file = local_open(r'res\localizations\strings-en.json', 'r')
     loc = json.load(loc_file)
     loc_file.close()
     return loc
 
 def load_theme (name):
     try:
-        theme_file = open(rf'res\themes\{name}.json', 'r')
+        theme_file = local_open(rf'res\themes\{name}.json', 'r')
     except FileNotFoundError:
-        theme_file = open(r'res\themes\default.json', 'r')
+        theme_file = local_open(r'res\themes\default.json', 'r')
     theme = json.load(theme_file)
     theme_file.close()
     return theme
+
+
+########################################################
+# SHELL CODE: for debug
+'''
+while True:
+    try:
+        SHELL_input_command = input(f'$@{__name__}/> ')
+        if SHELL_input_command == 'exit':
+            break
+        elif SHELL_input_command.startswith('/'):
+            exec(SHELL_input_command[1:])
+        else:
+            print(eval(SHELL_input_command))
+    except Exception as e:
+        SHELL_exception_class = e.__class__.__name__
+        print(f'!: {SHELL_exception_class} : {e}')
+        SHELL_last_error = e
+'''
+########################################################
 
 
 
@@ -74,6 +110,7 @@ theme = load_theme(settings['theme'])
 music_api = mdapi.MusicDownloaderAPI(settings)
 
 music_downloader = mdgui.MusicDownloader(music_api, layout, localization, theme, settings)
+music_downloader._save_settings = save_settings
 
 music_downloader.run()
 
