@@ -31,9 +31,15 @@ os = mdapi.os
 
 # MAYBE: last.fm api implement 
 
-SERVICE_KEYS = ('class', 'events', 'command')
 # keys that mustn't get into a widget's configure call
+SERVICE_KEYS = ('class', 'events', 'command')
 
+# keys of languages of program and sites
+LANGUAGE_KEYS = ('en', 'ru', 'uk')
+SITE_KEYS = ('youtube', 'musicbr', 'soundcl', 'lastdfm')
+
+# classes using bg and fg params with causes errors
+NOBGFG_CLASSES = ('Spinbox', 'Combobox', 'Progressbar')
 
 
 class MusicDownloader:
@@ -116,6 +122,7 @@ class MusicDownloader:
 
         self.expanded = False
         self.settings_is_open = False
+        self.current_video = None
 
         app_widgets = layout['app_widgets']
         tag_widgets = layout['tag_widgets']
@@ -197,6 +204,10 @@ class MusicDownloader:
 
 
     def configure (self):
+
+        elements_default_bg = None
+        elements_default_fg = None
+        
         app = tk.Tk()
         app_measure = self.app_widgets['app']
         app_configs = self.app_widgets_configs['app']
@@ -213,14 +224,28 @@ class MusicDownloader:
             app.resizable(x=app_measure['resizable_x'])
         if 'resizable_y' in app_measure:
             app.resizable(y=app_measure['resizable_y'])
+        if 'elements_default_bg' in app_configs:
+            elements_default_bg = app_configs['elements_default_bg']
+        if 'elements_default_fg' in app_configs:
+            elements_default_fg = app_configs['elements_default_fg']
 
         for element_id in self.app_widgets:
             configs = self.app_widgets[element_id]
             if not 'class' in configs:
                 continue
             init_configs = self.app_widgets_configs[element_id]
+            widget_class_name = configs['class']
+
+            if not 'bg' in init_configs:
+                if elements_default_bg is not None:
+                    if not widget_class_name in NOBGFG_CLASSES:
+                        init_configs['bg'] = elements_default_bg
+            if not 'fg' in init_configs:
+                if elements_default_fg is not None:
+                    if not widget_class_name in NOBGFG_CLASSES:
+                        init_configs['fg'] = elements_default_fg
             
-            widget_class = getattr(tk, configs['class'])
+            widget_class = getattr(tk, widget_class_name)
             widget = widget_class(app, **init_configs)
             
             if 'command' in configs:
@@ -240,8 +265,18 @@ class MusicDownloader:
             if not 'class' in configs:
                 continue
             init_configs = self.tag_widgets_configs[element_id]
+            widget_class_name = configs['class']
+
+            if not 'bg' in init_configs:
+                if elements_default_bg is not None:
+                    if not widget_class_name in NOBGFG_CLASSES:
+                        init_configs['bg'] = elements_default_bg
+            if not 'fg' in init_configs:
+                if elements_default_fg is not None:
+                    if not widget_class_name in NOBGFG_CLASSES:
+                        init_configs['fg'] = elements_default_fg
             
-            widget_class = getattr(tk, configs['class'])
+            widget_class = getattr(tk, widget_class_name)
             widget = widget_class(app, **init_configs)
             
             if 'command' in configs:
@@ -504,20 +539,29 @@ class MusicDownloader:
         self._set_geometry(app['width'], app['height'])
         self.button_expand.configure(text=self.tag_widgets_configs['button_expand']['text'],
                                      command=self.reduce)
-        self._set_tags()
-        self._configure_tags_entries()
         self.expanded = True
+        if self.current_video is not None:
+            self._set_tags()
+            self._configure_tags_entries()
         
 
     def reduce (self, *args):
         app = self.app_widgets['app']
         self._set_geometry(app['width'], app['height'])
-        self.button_expand.configure(text=self.tag_widgets_configs['button_expand']['text'],
+        self.button_expand.configure(text=self.app_widgets_configs['button_expand']['text'],
                                      command=self.expand)
         self.expanded = False
 
 
     def open_settings (self):
+
+        elements_default_bg = None
+        elements_default_fg = None
+        
+        if self.settings_is_open:
+            self.settings_window.focus_force()
+            return
+        
         print("="*60)
         print("==================== SETTINGS DEBUG =====================")
         print("="*60)
@@ -549,8 +593,18 @@ class MusicDownloader:
             if not 'class' in configs:
                 continue
             init_configs = self.set_widgets_configs[element_id]
-            
-            widget_class = getattr(tk, configs['class'])
+            widget_class_name = configs['class']
+
+            if not 'bg' in init_configs:
+                if elements_default_bg is not None:
+                    if not widget_class_name in NOBGFG_CLASSES:
+                        init_configs['bg'] = elements_default_bg
+            if not 'fg' in init_configs:
+                if elements_default_fg is not None:
+                    if not widget_class_name in NOBGFG_CLASSES:
+                        init_configs['fg'] = elements_default_fg
+                        
+            widget_class = getattr(tk, widget_class_name)
             widget = widget_class(settings_window, **init_configs)
             
             if 'command' in configs:
@@ -729,7 +783,7 @@ class MusicDownloader:
 
     def _get_settings (self):
         if self.settings_is_open:
-            settings = {}
+            settings = {} 
             settings['bitrate'] = self.s_spinner_bitrate.get()
             settings['limit'] = self.s_entry_limit.get()
             settings['predownload'] = self.s_chbox_predownload.get()
@@ -742,9 +796,18 @@ class MusicDownloader:
             settings['parallel_threads'] = self.s_spinner_parallel_threads.get()
             settings['fps'] = self.s_spinner_fps.get()
             settings['layout'] = self.s_list_layout.get()
-            settings['theme'] = self.s_list_language.get()
+            settings['theme'] = self.s_list_theme.get()
+            lang_values = self.s_list_language['values']
+            lang_index = lang_values.index(self.s_list_language.get())
+            settings['language_key'] = LANGUAGE_KEYS[lang_index]
             settings['language'] = self.s_list_language.get()
+            site_values = self.s_list_first_tag_priority['values']
+            site_index = site_values.index(self.s_list_first_tag_priority.get())
+            settings['first_tag_priority_key'] = SITE_KEYS[site_index]
             settings['first_tag_priority'] = self.s_list_first_tag_priority.get()
+            site_values = self.s_list_second_tag_priority['values']
+            site_index = site_values.index(self.s_list_second_tag_priority.get())
+            settings['second_tag_priority_key'] = SITE_KEYS[site_index]
             settings['second_tag_priority'] = self.s_list_second_tag_priority.get()
             settings['zip_files'] = self.s_chbox_zip_files.get()
             settings['zip_algorithm'] = self.s_list_zip_algorithm.get()
@@ -772,9 +835,15 @@ class MusicDownloader:
             self.s_spinner_fps.set(settings['fps'])
             self.s_list_layout.set(settings['layout'])
             self.s_list_theme.set(settings['theme'])
-            self.s_list_language.set(settings['language'])
-            self.s_list_first_tag_priority.set(settings['first_tag_priority'])
-            self.s_list_second_tag_priority.set(settings['second_tag_priority'])
+            lang_index = LANGUAGE_KEYS.index(settings['language_key'])
+            language = self.s_list_language['values'][lang_index]
+            self.s_list_language.set(language)
+            site_index = SITE_KEYS.index(settings['first_tag_priority_key'])
+            site = self.s_list_first_tag_priority['values'][site_index]
+            self.s_list_first_tag_priority.set(site)
+            site_index = SITE_KEYS.index(settings['second_tag_priority_key'])
+            site = self.s_list_second_tag_priority['values'][site_index]
+            self.s_list_second_tag_priority.set(site)
             self.s_chbox_zip_files.set(settings['zip_files'])
             self.s_list_zip_algorithm.set(settings['zip_algorithm'])
 
@@ -955,7 +1024,6 @@ if __name__ == '__main__':
         theme_ex,
         settings_ex)
     musicdownloader.run()
-
 
 
 # CODE GENERATORS
