@@ -6,6 +6,9 @@ import mdapi
 import json
 import sys
 
+# Checkbox tick isn't visible
+# Default background option
+
 # [F?] ISSUE: Searching second song, button play still pause
 
 VERSION = '0.7.9.6'
@@ -24,9 +27,12 @@ settings_ex = {
     'fps': 2,
     'layout': 'Default',
     'language': 'English',
+    'language_key': 'en',
     'theme': 'Default',
     'first_tag_priority': 'Youtube',
+    'first_tag_priority_key': 'youtube',
     'second_tag_priority': 'MusicBrainzngs',
+    'second_tag_priority_key': 'musicbr',
     'zip_files': False,
     'zip_algorithm': 'NONE'
     }
@@ -103,7 +109,7 @@ while True:
 
 settings = load_settings()
 layout = load_layout(settings['layout'])
-localization = load_localization(settings['language'])
+localization = load_localization(settings['language_key'])
 theme = load_theme(settings['theme'])
 
 
