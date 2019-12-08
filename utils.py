@@ -73,7 +73,7 @@ def format_time (seconds):
 
 
 
-def dict_without_keys(dict_, *keys):
+def dict_without_keys(dict_, keys):
     # {'a': 5, 'b': 6, 'c': 7} ('c') >> {'a': 5, 'b': 6}
     return {k:dict_[k] for k in dict_ if not k in keys}
 
