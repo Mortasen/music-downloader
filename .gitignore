@@ -12,3 +12,6 @@ res/localizations/*
 !res/themes
 res/themes/*
 !res/themes/default.json
+
+magic/*
+releases/*
