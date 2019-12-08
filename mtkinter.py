@@ -5,6 +5,7 @@ from tkinter import messagebox as tkmb
 from tkinter import font as tkfont
 
 tkCheckbutton = Checkbutton
+tkSpinbox = Spinbox
 
 CONFLICTS = ['Button', 'Checkbutton',
              'Entry', 'Frame',
@@ -293,6 +294,24 @@ class Checkbutton:
         self.___obj.get = self.___obj.var.get
         self.___obj.set = self.___obj.var.set
         self.__dir__ = self.___obj.__dir__
+
+    def __getattr__ (self, name):
+        return getattr(self.___obj, name)
+
+
+class Spinbox:
+    def __init__ (self, *args, **kwargs):
+        self.___obj = tkSpinbox(*args, **kwargs)
+        self.__dir__ = self.___obj.__dir__
+
+    def set (self, *args, **kwargs):
+        state = self.___obj.cget('state').string
+        if state == 'readonly' or state == 'disabled':
+            print('[MTKINTER] state readonly')
+            self.___obj.configure(state='normal')
+        self.___obj.delete(0, 'end')
+        self.___obj.insert(0, *args, **kwargs)
+        self.___obj.configure(state=state)
 
     def __getattr__ (self, name):
         return getattr(self.___obj, name)
