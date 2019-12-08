@@ -25,6 +25,9 @@ class MusicDownloaderAPI:
     def __init__ (self, settings):
         self.settings = settings
         #PARSE SETTINGS
+        ydl.params['postprocessors'][0]['preferredquality'] = str(settings['bitrate'])
+        outtmpl = settings['temp_directory']+r'\%(id)s.%(ext)s'
+        ydl.params['outtmpl'] = outtmpl
         
 
     def _get_thumbnail_url (self, video_id):
