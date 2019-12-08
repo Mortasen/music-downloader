@@ -6,8 +6,8 @@ from PIL import Image, ImageTk
 import shutil
 from time import sleep
 import mp3play
-
 import eyed3
+import json
 
 from utils import format_number, date_dict, format_date, \
      format_time, dict_without_keys
@@ -30,6 +30,11 @@ os = mdapi.os
 # [F?] ISSUE: Parallelism and player
 
 # MAYBE: last.fm api implement 
+
+SERVICE_KEYS = ('class', 'events', 'command')
+# keys that mustn't get into a widget's configure call
+
+
 
 class MusicDownloader:
 
@@ -222,6 +227,11 @@ class MusicDownloader:
                 func = getattr(self, configs['command'])
                 widget.configure(command=func)
                 print('assigned func', func, 'to widget', configs)
+
+            if 'events' in configs:
+                for event in configs['events']:
+                    func = getattr(self, configs['events'][event])
+                    widget.bind(event, func)
                 
             setattr(self, element_id, widget)
 
@@ -237,6 +247,11 @@ class MusicDownloader:
             if 'command' in configs:
                 func = getattr(self, configs['command'])
                 widget.configure(command=func)
+
+            if 'events' in configs:
+                for event in configs['events']:
+                    func = getattr(self, configs['events'][event])
+                    widget.bind(event, func)
                 
             setattr(self, element_id, widget)
 
@@ -446,7 +461,7 @@ class MusicDownloader:
         ...
 
     def play_song (self):
-        temp_dir = self.settings['temp_dir']
+        temp_dir = self.settings['temp_directory']
         if self.api.is_downloading_video():
             self._wait_for_downloading_video()
         if not self.current_video in self.downloaded_videos:
@@ -548,7 +563,7 @@ class MusicDownloader:
             if not 'class' in self.set_widgets[element_id]:
                 continue
             widget = getattr(self, element_id)
-            configs = dict_without_keys(self.set_widgets[element_id], 'class', 'command')
+            configs = dict_without_keys(self.set_widgets[element_id], SERVICE_KEYS)
             widget.place(**configs)
 
         self._set_settings(self.settings)
@@ -632,14 +647,14 @@ class MusicDownloader:
             if not 'class' in self.app_widgets[element_id]:
                 continue
             widget = getattr(self, element_id)
-            configs = dict_without_keys(self.app_widgets[element_id], 'class', 'command')
+            configs = dict_without_keys(self.app_widgets[element_id], SERVICE_KEYS)
             widget.place(**configs)
 
         for element_id in self.tag_widgets:
             if not 'class' in self.tag_widgets[element_id]:
                 continue
             widget = getattr(self, element_id)
-            configs = dict_without_keys(self.tag_widgets[element_id], 'class', 'command')
+            configs = dict_without_keys(self.tag_widgets[element_id], SERVICE_KEYS)
             widget.place(**configs)
 
         self.app.mainloop()
@@ -739,8 +754,7 @@ class MusicDownloader:
 
     def _set_settings (self, settings):
         if self.settings_is_open:
-            self.s_spinner_bitrate.delete(0, 'end')
-            self.s_spinner_bitrate.insert(0, settings['bitrate'])
+            self.s_spinner_bitrate.set(settings['bitrate'])
             self.s_entry_limit.delete(0, 'end')
             self.s_entry_limit.insert(0, settings['limit'])
             self.s_chbox_predownload.set(settings['predownload'])
@@ -754,23 +768,15 @@ class MusicDownloader:
             self.s_chbox_connect_to_database.set(settings['connect_to_database'])
             self.s_entry_database_location.delete(0, 'end')
             self.s_entry_database_location.insert(0, settings['database_location'])
-            self.s_spinner_parallel_threads.delete(0, 'end')
-            self.s_spinner_parallel_threads.insert(0, settings['parallel_threads'])
-            self.s_spinner_fps.delete(0, 'end')
-            self.s_spinner_fps.insert(0, settings['fps'])
-            self.s_list_layout.delete(0, 'end')
-            self.s_list_layout.insert(0, settings['layout'])
-            self.s_list_theme.delete(0, 'end')
-            self.s_list_theme.insert(0, settings['theme'])
-            self.s_list_language.delete(0, 'end')
-            self.s_list_language.insert(0, settings['language'])
-            self.s_list_first_tag_priority.delete(0, 'end')
-            self.s_list_first_tag_priority.insert(0, settings['first_tag_priority'])
-            self.s_list_second_tag_priority.delete(0, 'end')
-            self.s_list_second_tag_priority.insert(0, settings['second_tag_priority'])
+            self.s_spinner_parallel_threads.set(settings['parallel_threads'])
+            self.s_spinner_fps.set(settings['fps'])
+            self.s_list_layout.set(settings['layout'])
+            self.s_list_theme.set(settings['theme'])
+            self.s_list_language.set(settings['language'])
+            self.s_list_first_tag_priority.set(settings['first_tag_priority'])
+            self.s_list_second_tag_priority.set(settings['second_tag_priority'])
             self.s_chbox_zip_files.set(settings['zip_files'])
-            self.s_list_zip_algorithm.delete(0, 'end')
-            self.s_list_zip_algorithm.insert(0, settings['zip_algorithm'])
+            self.s_list_zip_algorithm.set(settings['zip_algorithm'])
 
     def _save_settings (self, settings):
         settings_file = open('settings_file', 'w')
@@ -931,7 +937,7 @@ class MusicDownloader:
         print(self.downloaded_videos)
 
     def _clear_cache (self):
-        temp_dir = self.settings['temp_dir']
+        temp_dir = self.settings['temp_directory']
         for video_num in self.downloaded_videos:
             video_id = self.last_results['entries'][video_num]['id']
             filepath = rf'{temp_dir}\{video_id}.mp3'
