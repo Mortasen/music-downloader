@@ -4,6 +4,8 @@ from tkinter import filedialog as tkfd
 from tkinter import messagebox as tkmb
 from tkinter import font as tkfont
 
+from utils import dict_without_keys
+
 tkCheckbutton = Checkbutton
 tkSpinbox = Spinbox
 
@@ -288,15 +290,37 @@ class EntryDirectory:
 
 class Checkbutton:
     def __init__ (self, *args, **kwargs):
+        # sorry for spaghetti code
+        # but I'm only human after all, I'm only human after all                                                                                                don't put your blame on me, don't put my* blame on me...
+        self.___selectcolortext = None
+        if 'selectcolortext' in kwargs:
+            self.___selectcolortext = kwargs.pop('selectcolortext')
+            self.___fg = kwargs['fg']
+            self.___button1_func = lambda *_: None
         var = IntVar()
         self.___obj = tkCheckbutton(*args, variable=var, **kwargs)
         self.___obj.var = var
         self.___obj.get = self.___obj.var.get
         self.___obj.set = self.___obj.var.set
         self.__dir__ = self.___obj.__dir__
+        if self.___selectcolortext:
+            self.___obj.bind('<Button-1>', self.___click)
 
     def __getattr__ (self, name):
         return getattr(self.___obj, name)
+    
+    def ___click (self, event):
+        if self.get():
+            self.___obj.configure(fg=self.___fg)
+        else:
+            self.___obj.configure(fg=self.___selectcolortext)
+        self.___button1_func()
+
+    def bind (self, event, func):
+        if event == '<Button-1>':
+            self.___button1_func = func
+        else:
+            self.___obj.bind(event, func)
 
 
 class Spinbox:
