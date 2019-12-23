@@ -1,3 +1,24 @@
+PROJECT STRUCTURE:
+.git 		- folder for git
+__pycache__ - folder for compiled python code
+magic 		- magic library. Need for changing it for freezed using
+res 		- resources of program
+- layouts 	- layouts for program location
+- languages - languages of program
+- themes 	- themes for program location
+Also contain a images in it.
+.gitignore - git file
+mdapi.py - file that realizes MusicDownloaderAPI class
+mdgui.py - file that realizes MusicDownloaderGUI class
+mtkinter - file that contains various classes for program
+MusicDownlader.py - main program file; entry_point
+settings_file - user_settings
+util.py - utilities
+
+
+
+
+
 SETTINGS:
 bitrate: 				320 255 180 ...		Spinner
 limit to download info: 1 ... 30			Spinner
