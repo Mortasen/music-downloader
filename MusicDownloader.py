@@ -11,7 +11,7 @@ import sys
 
 # [F?] ISSUE: Searching second song, button play still pause
 
-VERSION = '0.7.9.6'
+VERSION = '0.7.9.8'
 
 settings_ex = {
     'bitrate': 96,
@@ -115,7 +115,7 @@ theme = load_theme(settings['theme'])
 
 music_api = mdapi.MusicDownloaderAPI(settings)
 
-music_downloader = mdgui.MusicDownloader(music_api, layout, localization, theme, settings)
+music_downloader = mdgui.MusicDownloaderGUI(music_api, layout, localization, theme, settings)
 music_downloader._save_settings = save_settings
 
 music_downloader.run()
