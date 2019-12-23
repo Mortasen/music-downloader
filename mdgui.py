@@ -42,81 +42,8 @@ SITE_KEYS = ('youtube', 'musicbr', 'soundcl', 'lastdfm')
 NOBGFG_CLASSES = ('Spinbox', 'Combobox', 'Progressbar')
 
 
-class MusicDownloader:
-
-    ELEMENTS = [
-        'app',
-        'app_2',
-        'label_query',
-        'entry_query',
-        'button_search',
-        'label_image',
-        'label_title',
-        'label_uploader',
-        'label_views',
-        'label_likes',
-        'label_date',
-        'button_play',
-        'progress_bar',
-        'label_remaining_time',
-        'button_previous',
-        'button_next',
-        'button_download',
-        'button_toqueue',
-        'entry_directory',
-        'entry_filename',
-        'entry_database',
-        'chbox_predownload',
-        'chbox_database',
-        'chbox_tags_from_video',
-        'chbox_lyrics',
-        'chbox_zipfile',
-        'chbox_reserved',
-        'button_expand',
-        'button_expand_2',
-        'button_settings',
-        
-        'label_tag_title',
-        'entry_tag_title',
-        'label_tag_artist',
-        'entry_tag_artist',
-        'label_tag_genre',
-        'entry_tag_genre',
-        'label_tag_from',
-        'entry_tag_from',
-        'label_tag_source',
-        'entry_tag_source',
-        'label_tag_year',
-        'entry_tag_year',
-        'label_tag_instrument',
-        'entry_tag_instrument',
-        'label_tag_mood',
-        'entry_tag_mood',
-        'label_tag_mark',
-        'entry_tag_mark'
-        ]#,
-
-    TAG_ELEMENTS = [
-        'label_tag_title',
-        'entry_tag_title'
-        'label_tag_artist',
-        'entry_tag_artist',
-        'label_tag_genre',
-        'entry_tag_genre',
-        'label_tag_from',
-        'entry_tag_from',
-        'label_tag_source',
-        'entry_tag_source',
-        'label_tag_year',
-        'entry_tag_year',
-        'label_tag_instrument',
-        'entry_tag_instrument',
-        'label_tag_mood',
-        'entry_tag_mood',
-        'label_tag_mark',
-        'entry_tag_mark'
-        ]
-
+class MusicDownloaderGUI:
+    
     def __init__ (self, api, layout, localization, theme, settings):
         self.settings = settings
 
@@ -166,41 +93,7 @@ class MusicDownloader:
         #self.tags_found_videos = []
 
 
-    def OLD__init__ (self, api, layout, localization, theme, settings):
-        self.layout = layout
-        self.loc = localization
-        self.theme = theme
-        self.settings = settings
 
-        self.expanded = False
-
-        appearence = {el: {} for el in self.ELEMENTS}
-
-        # Merge all options of elements (in localization and theme)
-        # to one dict (appearence)
-        for el in self.ELEMENTS:
-            if el in localization:
-                for field in localization[el]:
-                    appearence[el][field] = localization[el][field]
-            if el in theme:
-                for field in theme[el]:
-                    appearence[el][field] = theme[el][field]
-
-        '''# Set bg of all elements to app bg, unless otherwise specified
-        for el in appearence:
-            if not 'bg' in appearence[el]:
-                if 'bg' in appearence['app']:
-                    appearence[el]['bg'] = appearence['app']['bg']'''
-
-        self.appearence = appearence
-        
-        self.configure()
-
-        self.api = api
-
-        self.downloaded_videos = []
-        self.accepted_videos = []
-        #self.tags_found_videos = []
 
 
     def configure (self):
@@ -292,91 +185,9 @@ class MusicDownloader:
 
         self.app = app
 
-
-
-    def OLDconfigure (self):
-        '''
-        self.app = tk.Tk()
-        app_configs = self.appearence['app']
-        app_measure = self.layout['app']
         
-        if 'title' in app_configs:
-            self.app.title(self.appearence['app']['title'])
-        if 'bg' in app_configs:
-            self.app.configure(bg=app_configs['bg'])
-        if 'image' in app_configs:
-            self.app.configure(image=app_configs['image'])
-        if 'width' in app_measure and 'height' in app_measure:
-            self._set_geometry(app_measure['width'], app_measure['height'])
-        if 'resizable_x' in app_measure:
-            self.app.resizable(x=app_measure['resizable_x'])
-        if 'resizable_y' in app_measure:
-            self.app.resizable(y=app_measure['resizable_y'])
-
-        self.app.protocol('WM_DELETE_WINDOW', self.exit)
-
-        root = self.app
-
-        self.label_query = tk.Label(root, **self.appearence['label_query'])
-        self.entry_query = tk.EntryWithPlaceholder(root, **self.appearence['entry_query'])
-        self.entry_query.bind('<Return>', self.search)
-        self.button_search = tk.Button(root, **self.appearence['button_search'])
-        self.button_search.configure(command=self.search)
-        self.label_image = tk.Label(root, **self.appearence['label_image'])
-        self.label_title = tk.Label(root, **self.appearence['label_title'])
-        self.label_uploader = tk.Label(root, **self.appearence['label_uploader'])
-        self.label_views = tk.Label(root, **self.appearence['label_views'])
-        self.label_likes = tk.Label(root, **self.appearence['label_likes'])
-        self.label_date = tk.Label(root, **self.appearence['label_date'])
-        self.button_play = tk.Button(root, **self.appearence['button_play'])
-        self.button_play.configure(command=self.play_song)
-        self.progress_bar = ttk.Progressbar(root, **self.appearence['progress_bar'])
-        self.label_remaining_time = tk.Label(root, **self.appearence['label_remaining_time'])
-        self.button_previous = tk.Button(root, **self.appearence['button_previous'])
-        self.button_previous.configure(command=self.previous, state='disabled')
-        self.button_next = tk.Button(root, **self.appearence['button_next'])
-        self.button_next.configure(command=self.next, state='disabled')
-        self.button_download = tk.Button(root, **self.appearence['button_download'])
-        self.button_download.configure(command=self.download)
-        self.button_toqueue = tk.Button(root, **self.appearence['button_toqueue'])
-        
-        self.entry_directory = tk.Entry(root, **self.appearence['entry_directory'])
-        self.entry_filename = tk.Entry(root, **self.appearence['entry_filename'])
-        self.entry_database = tk.Entry(root, **self.appearence['entry_database'])
-        self.chbox_predownload = tk.Checkbutton(root, **self.appearence['chbox_predownload'])
-        self.chbox_database = tk.Checkbutton(root, **self.appearence['chbox_database'])
-        self.chbox_tags_from_video = tk.Checkbutton(root, **self.appearence['chbox_tags_from_video'])
-        self.chbox_lyrics = tk.Checkbutton(root, **self.appearence['chbox_lyrics'])
-        self.chbox_zipfile = tk.Checkbutton(root, **self.appearence['chbox_zipfile'])
-        self.chbox_reserved = tk.Checkbutton(root, **self.appearence['chbox_reserved'])
-        self.button_expand = tk.Button(root, **self.appearence['button_expand'])
-        self.button_expand.configure(command=self.expand)
-        self.button_settings = tk.Button(root, **self.appearence['button_settings'])
-        self.button_settings.configure(command=self.open_settings)
 
 
-        self.label_tag_title = tk.Label(root, **self.appearence['label_tag_title'])
-        self.entry_tag_title = tk.Entry(root, **self.appearence['entry_tag_title'])
-        self.label_tag_artist = tk.Label(root, **self.appearence['label_tag_artist'])
-        self.entry_tag_artist = tk.Entry(root, **self.appearence['entry_tag_artist'])
-        self.label_tag_genre = tk.Label(root, **self.appearence['label_tag_genre'])
-        self.entry_tag_genre = tk.Entry(root, **self.appearence['entry_tag_genre'])
-        self.label_tag_from = tk.Label(root, **self.appearence['label_tag_from'])
-        self.entry_tag_from = tk.Entry(root, **self.appearence['entry_tag_from'])
-        self.label_tag_source = tk.Label(root, **self.appearence['label_tag_source'])
-        self.entry_tag_source = tk.Entry(root, **self.appearence['entry_tag_source'])
-        self.label_tag_year = tk.Label(root, **self.appearence['label_tag_year'])
-        self.entry_tag_year = tk.Entry(root, **self.appearence['entry_tag_year'])
-        self.label_tag_instrument = tk.Label(root, **self.appearence['label_tag_instrument'])
-        self.entry_tag_instrument = tk.Entry(root, **self.appearence['entry_tag_instrument'])
-        self.label_tag_mood = tk.Label(root, **self.appearence['label_tag_mood'])
-        self.entry_tag_mood = tk.Entry(root, **self.appearence['entry_tag_mood'])
-        self.label_tag_mark = tk.Label(root, **self.appearence['label_tag_mark'])
-        self.entry_tag_mark = tk.Entry(root, **self.appearence['entry_tag_mark'])
-        '''
-        pass
-
-        
 
     def search (self, *args):
         self.progress_bar.configure(mode='indeterminate', value=50)
@@ -426,10 +237,6 @@ class MusicDownloader:
                 self.button_download.configure(state='disable')
             else:
                 self.button_download.configure(state='normal')
-            '''#if self.expanded and not self.current_video in self.tags_found_videos:
-            if self.expanded and not self.current_video in self.tags:
-                self._set_tags()
-                self._configure_tags_entries()'''
         if self.current_video == 0:
             self.button_previous.configure(state='disabled')
         if self.current_video < len(self.last_results['entries'])-1:
@@ -445,10 +252,6 @@ class MusicDownloader:
                 self.button_download.configure(state='disable')
             else:
                 self.button_download.configure(state='normal')
-            '''#if self.expanded and not self.current_video in self.tags_found_videos:
-            if self.expanded and not self.current_video in self.tags:
-                self._set_tags()
-                self._configure_tags_entries()'''
         if self.current_video == len(self.last_results['entries'])-1:
             self.button_next.configure(state='disabled')
         if self.current_video > 0:
@@ -642,60 +445,6 @@ class MusicDownloader:
             else:
                 self.cancel_settings()
 
-
-    def OLDrun (self):
-        self.label_query.place(**self.layout['label_query'])
-        self.entry_query.place(**self.layout['entry_query'])
-        self.button_search.place(**self.layout['button_search'])
-        self.label_image.place(**self.layout['label_image'])
-        self.label_title.place(**self.layout['label_title'])
-        self.label_uploader.place(**self.layout['label_uploader'])
-        self.label_views.place(**self.layout['label_views'])
-        self.label_likes.place(**self.layout['label_likes'])
-        self.label_date.place(**self.layout['label_date'])
-        self.button_play.place(**self.layout['button_play'])
-        self.progress_bar.place(**self.layout['progress_bar'])
-        self.label_remaining_time.place(**self.layout['label_remaining_time'])
-        self.button_previous.place(**self.layout['button_previous'])
-        self.button_next.place(**self.layout['button_next'])
-        self.button_download.place(**self.layout['button_download'])
-        self.button_toqueue.place(**self.layout['button_toqueue'])
-        self.entry_directory.place(**self.layout['entry_directory'])
-        self.entry_filename.place(**self.layout['entry_filename'])
-        self.entry_database.place(**self.layout['entry_database'])
-        self.chbox_predownload.place(**self.layout['chbox_predownload'])
-        self.chbox_database.place(**self.layout['chbox_database'])
-        self.chbox_tags_from_video.place(**self.layout['chbox_tags_from_video'])
-        self.chbox_lyrics.place(**self.layout['chbox_lyrics'])
-        self.chbox_zipfile.place(**self.layout['chbox_zipfile'])
-        #self.chbox_reserved.place(**self.layout['chbox_reserved'])
-        self.button_expand.place(**self.layout['button_expand'])
-        self.button_settings.place(**self.layout['button_settings'])
-
-
-        self.label_tag_title.place(**self.layout['label_tag_title'])
-        self.entry_tag_title.place(**self.layout['entry_tag_title'])
-        self.label_tag_artist.place(**self.layout['label_tag_artist'])
-        self.entry_tag_artist.place(**self.layout['entry_tag_artist'])
-        self.label_tag_genre.place(**self.layout['label_tag_genre'])
-        self.entry_tag_genre.place(**self.layout['entry_tag_genre'])
-        self.label_tag_from.place(**self.layout['label_tag_from'])
-        self.entry_tag_from.place(**self.layout['entry_tag_from'])
-        self.label_tag_source.place(**self.layout['label_tag_source'])
-        self.entry_tag_source.place(**self.layout['entry_tag_source'])
-        self.label_tag_year.place(**self.layout['label_tag_year'])
-        self.entry_tag_year.place(**self.layout['entry_tag_year'])
-        self.label_tag_instrument.place(**self.layout['label_tag_instrument'])
-        self.entry_tag_instrument.place(**self.layout['entry_tag_instrument'])
-        self.label_tag_mood.place(**self.layout['label_tag_mood'])
-        self.entry_tag_mood.place(**self.layout['entry_tag_mood'])
-        self.label_tag_mark.place(**self.layout['label_tag_mark'])
-        self.entry_tag_mark.place(**self.layout['entry_tag_mark'])
-
-        self.app.mainloop()
-
-
-
     def run (self):
         for element_id in self.app_widgets:
             if not 'class' in self.app_widgets[element_id]:
@@ -852,36 +601,6 @@ class MusicDownloader:
         json.dump(settings, settings_file)
 
 
-    '''def _find_tags (self, video_info=None):
-        if video_info is None:
-            video_info = self._get_current_video_info()
-            self.tags_found_videos.append(self.current_video)
-            
-        self.tags = self.api.get_tags(video_info)
-        if tags:
-            print('\n= TAGS GOT! =\n')
-            print(self.tags)
-            if overwrite or not 'title' in vinfo or not vinfo['title']:
-                video_info['title']
-            self._set_tags(self.tags)
-
-
-    def _set_tags (self, tags, overwrite=False):
-        #self.entry_tag_title.configure(text=tags['title'])
-        vinfo = self.get_current_video_info()
-        if 'title' in tags and tags['title']:
-            self.entry_tag_title.insert(0, tags['title'])
-        #self.entry_tag_artist.configure(text=tags['artist'])
-        if 'artist' in tags and tags['artist']:
-            self.entry_tag_artist.insert(0, tags['artist'])
-        #self.entry_tag_from.configure(text=tags['album'])
-        if 'album' in tags and tags['album']:
-            self.entry_tag_from.insert(0, tags['album'])
-        #self.entry_tag_year.configure(text=tags['year'])
-        if 'year' in tags and tags['year']:
-            self.entry_tag_year.insert(0, str(tags['year']))'''
-
-
     def _find_tags (self, videoinfo=None):
         if videoinfo is None:
             #if self.current_video in self.tags_found_videos:
@@ -1024,22 +743,3 @@ if __name__ == '__main__':
         theme_ex,
         settings_ex)
     musicdownloader.run()
-
-
-# CODE GENERATORS
-'''
-for el in TAG_ELEMENTS:
-	if el.startswith('label'):
-	      x = x1
-	      s = "\n        },\n"
-	      y += 35
-	else:
-	      x = x2
-	      s = ",\n        'width': 120,\n        'height': 30\n        },\n"
-	      y += 25
-	print(f"    '{el}': {{")
-	print(f"        'x': {x},")
-	print(f"        'y': {y}", end='')
-	print(s)
-
-'''
