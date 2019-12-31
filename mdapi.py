@@ -2,11 +2,13 @@ from bs4 import BeautifulSoup
 import audiojack
 from threading import Thread
 
+from utils import extract_ydl_params
+
 os = audiojack.os
 urllib = audiojack.urllib
 youtube_dl = audiojack.youtube_dl
 
-ydl_opts = {
+ydl_params = {
     'format': 'bestaudio',
     'outtmpl': 'F:\\%(id)s.%(ext)s',
     'postprocessors': [{
@@ -17,17 +19,17 @@ ydl_opts = {
 
 
 
-adj = audiojack.AudioJack()
-ydl = youtube_dl.YoutubeDL(params=ydl_opts)
-
 class MusicDownloaderAPI:
     
     def __init__ (self, settings):
+        global ydl, adj
         self.settings = settings
         #PARSE SETTINGS
-        ydl.params['postprocessors'][0]['preferredquality'] = str(settings['bitrate'])
-        outtmpl = settings['temp_directory']+r'\%(id)s.%(ext)s'
-        ydl.params['outtmpl'] = outtmpl
+        adj = audiojack.AudioJack(ffmpeg_location=settings['ffmpeg_location'])
+        
+        params = ydl_params
+        extract_ydl_params(from_dict=settings, to_dict=params)
+        ydl = youtube_dl.YoutubeDL(params=params)
         
 
     def _get_thumbnail_url (self, video_id):
@@ -98,23 +100,19 @@ class MusicDownloaderAPI:
         return tags
 
     def get_lyrics (self, song_title, song_artist):
-        artist = song_artist.lower()
-        title = song_title.lower()
-        artist = artist.replace(' ', '')
-        title = title.replace(' ', '')
-
-        url = "http://azlyrics.com/lyrics/"+artist+"/"+title+".html"
-        print(url)
-
         try:
+            artist = song_artist.lower()
+            title = song_title.lower()
+            artist = artist.replace(' ', '')
+            title = title.replace(' ', '')
+
+            url = "http://azlyrics.com/lyrics/"+artist+"/"+title+".html"
+            print(url)
+            
             content = urllib.request.urlopen(url).read()
         except Exception:
-            print("An error occured.")
-            u = input()
-            if u:
-                content = urllib.request.urlopen(u).read()
-            else:
-                return "/NO LYRICS/"
+            print("An error with lyrics occured.")
+            return "//NO LYRICS//"
             
         soup = BeautifulSoup(content, 'html.parser')
         lyrics = str(soup)
