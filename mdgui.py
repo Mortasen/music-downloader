@@ -10,7 +10,7 @@ import eyed3
 import json
 
 from utils import format_number, date_dict, format_date, \
-     format_time, dict_without_keys
+     format_time, dict_without_keys, clear_path
 
 os = mdapi.os
 
@@ -260,7 +260,7 @@ class MusicDownloaderGUI:
 
     def download (self, *args):
         # it doesn't mean download, just name of function by the text of button
-        temp_dir = self.settings['temp_dir']
+        temp_dir = self.settings['temp_directory']
         if self.api.is_downloading_video():
             self._wait_for_downloading_video()
         if not self.current_video in self.downloaded_videos:
@@ -273,26 +273,33 @@ class MusicDownloaderGUI:
         pathfrom = rf"{temp_dir}\{video_id}.mp3"
         # or may be not .mp3?
         
-        dload_dir = self.settings['path']
-        if 'track' in video and 'artist' in video:
-            filename = self.settings['filename'].format(**video)
+        dload_dir = self.settings['default_directory']
+        if 'track' in video and 'artist' in video and \
+           video['track'] is not None and video['artist'] is not None:
+            filename = self.settings['default_filename'].format(**video)
         else:
-            filename = video['title']
+            filename = video['title'] + '.mp3'
+        filename = clear_path(filename)
         pathto = rf"{dload_dir}\{filename}"
         self.accepted_videos.append(self.current_video)
         self.button_download.configure(state='disabled')
         shutil.move(pathfrom, pathto)
+        print('<><><> SONG MOVED!  <><><>')
+        print('FROM: ', pathfrom)
+        print('TO: ', pathto)
+        print('<><><><><><><><><><><><><>')
 
         self.song.stop()
         self.song.close()
 
         tags = self._get_current_video_tags()
         file = eyed3.load(pathto)
-        if 'title' in tags: file.tag.title = tags['title']
-        if 'artist' in tags: file.tag.artist = tags['artist'] 
-        if 'album' in tags: file.tag.album = tags['album']
-        if 'lyrics' in tags: file.tag.lyrics.set(tags['lyrics'])
-        file.tag.save()
+        if file is not None:
+            if 'title' in tags: file.tag.title = tags['title']
+            if 'artist' in tags: file.tag.artist = tags['artist'] 
+            if 'album' in tags: file.tag.album = tags['album']
+            if 'lyrics' in tags: file.tag.lyrics.set(tags['lyrics'])
+            file.tag.save()
         
 
     def to_queue (self):
@@ -725,13 +732,16 @@ class MusicDownloaderGUI:
         print(self.downloaded_videos)
 
     def _clear_cache (self):
-        temp_dir = self.settings['temp_directory']
-        for video_num in self.downloaded_videos:
-            video_id = self.last_results['entries'][video_num]['id']
-            filepath = rf'{temp_dir}\{video_id}.mp3'
-            # or may be not .mp3?
-            print(filepath, 'will be removed!')
-            os.remove(filepath)
+        try:
+            temp_dir = self.settings['temp_directory']
+            for video_num in self.downloaded_videos:
+                video_id = self.last_results['entries'][video_num]['id']
+                filepath = rf'{temp_dir}\{video_id}.mp3'
+                # or may be not .mp3?
+                print(filepath, 'will be removed!')
+                os.remove(filepath)
+        except:
+            print("----- CLEARING CACHE ERROR -----")
 
 
 
