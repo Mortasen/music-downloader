@@ -5,13 +5,22 @@ import mdapi
 
 import json
 import sys
-
+import os
 # Checkbox tick isn't visible
 # Default background option
 
 # [F?] ISSUE: Searching second song, button play still pause
 
-VERSION = '0.7.9.8'
+VERSION = '0.8.0'
+
+print("=== MUSIC DOWNLOADER ===")
+print('VERSION:', VERSION)
+print("DEVELOPED BY NAMERIF")
+
+current_file = sys.executable if getattr(sys, 'frozen', False) else __file__
+
+local_dir = '\\'.join(current_file.split('\\')[:-1]) # (os.path.dirname)
+
 
 settings_ex = {
     'bitrate': 96,
@@ -37,14 +46,9 @@ settings_ex = {
     'zip_algorithm': 'NONE'
     }
 
-current_file = sys.executable if getattr(sys, 'frozen', False) else __file__
-
-local_dir = '\\'.join(current_file.split('\\')[:-1]) # (os.path.dirname)
-
 
 def local_open (localfilepath, mode, *args, **kwargs):
-    absfilepath = local_dir + '\\' + localfilepath
-    file = open(absfilepath, mode, *args, **kwargs)
+    file = open(local_dir + '\\' + localfilepath, mode, *args, **kwargs)
     return file
 
 def load_settings ():
@@ -85,6 +89,18 @@ def load_theme (name):
     theme_file.close()
     return theme
 
+def check_settings (settings):
+    if settings['temp_directory'] == None or \
+       settings['default_directory'] == None:
+        init_settings(settings)
+
+def init_settings (settings):
+    if settings['temp_directory'] == None:
+        settings['temp_directory'] = local_dir + '\\temp'
+    if settings['default_directory'] == None:
+        default_default_directory = os.environ['USERPROFILE'] + '\\Downloads'
+        settings['default_directory'] = default_default_directory
+
 
 ########################################################
 # SHELL CODE: for debug
@@ -108,6 +124,9 @@ while True:
 
 
 settings = load_settings()
+settings['ffmpeg_location'] = local_dir
+check_settings(settings)
+
 layout = load_layout(settings['layout'])
 localization = load_localization(settings['language_key'])
 theme = load_theme(settings['theme'])
