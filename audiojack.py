@@ -22,7 +22,7 @@ myopts = {'format': 'bestaudio',
           'ffmpeg_location': 'D:\\FFmpeg\\bin'}
 
 class AudioJack(object):
-    def __init__(self, bitrate=256, small_cover_art=False, quiet=False):
+    def __init__(self, bitrate=256, small_cover_art=False, quiet=False, ffmpeg_location=None):
         self.opts = {
             'format': 'bestaudio',
             'outtmpl': '%(id)s.%(ext)s',
@@ -32,6 +32,8 @@ class AudioJack(object):
                 'preferredquality': str(bitrate)
             }]
         }
+        if ffmpeg_location is not None:
+            self.opts['ffmpeg_location'] = ffmpeg_location
         if quiet:
             self.opts['quiet'] = 1
             self.opts['no_warnings'] = 1
