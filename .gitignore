@@ -15,6 +15,7 @@ res/themes/*
 
 magic/*
 releases/*
+temp/*
 
 ffmpeg.exe
 ffplay.exe
