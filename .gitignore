@@ -15,3 +15,7 @@ res/themes/*
 
 magic/*
 releases/*
+
+ffmpeg.exe
+ffplay.exe
+ffprobe.exe
