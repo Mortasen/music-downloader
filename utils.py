@@ -60,7 +60,6 @@ def format_date (date_d, year_first=False, delim='.'):
     return fdate
     
 
-
 def format_time (seconds):
     # 1, 5   >> 01:05
     # 10, 10 >> 10:10
@@ -72,8 +71,33 @@ def format_time (seconds):
     return duration
 
 
-
-def dict_without_keys(dict_, keys):
+def dict_without_keys (dict_, keys):
     # {'a': 5, 'b': 6, 'c': 7} ('c') >> {'a': 5, 'b': 6}
     return {k:dict_[k] for k in dict_ if not k in keys}
 
+
+def extract_ydl_params (from_dict, to_dict):
+    if 'bitrate' in from_dict:
+        bitrate = from_dict['bitrate']
+        to_dict['postprocessors'][0]['preferredquality'] = str(bitrate)
+    if 'temp_directory' in from_dict:
+        temp_directory = from_dict['temp_directory']
+        to_dict['outtmpl'] = temp_directory + r'\%(id)s.%(ext)s'
+    if 'ffmpeg_location' in from_dict:
+        ffmpeg_location = from_dict['ffmpeg_location']
+        to_dict['ffmpeg_location'] = ffmpeg_location
+
+def clear_path (path):
+    path = path.replace('"', '')
+    path = path.replace('\\', '')
+    path = path.replace('/', '')
+    path = path.replace(':', '')
+    path = path.replace('*', '')
+    path = path.replace('?', '')
+    path = path.replace('<', '')
+    path = path.replace('>', '')
+    path = path.replace('|', '')
+    return path
+    
+    
+    
